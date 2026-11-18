@@ -1,0 +1,28 @@
+# ⚠️ السطر الوحيد اللي محتاج تغيّره: اكتب اسمك على GitHub واسم المستودع
+backend:
+  name: github
+  repo: GITHUB_USERNAME/alaaabed
+  branch: main
+
+media_folder: content/images
+public_folder: /content/images
+locale: ar
+
+collections:
+  - name: articles
+    label: المقالات
+    label_singular: مقال
+    folder: content/articles
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{year}}-{{month}}-{{day}}-{{hour}}{{minute}}"
+    summary: "{{title}}"
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: "العنوان", widget: string }
+      - { name: title_en, label: "العنوان بالإنجليزي (اختياري)", widget: string, required: false }
+      - { name: author, label: "اسم الكاتب (اختياري)", widget: string, required: false }
+      - { name: date, label: "التاريخ", widget: datetime }
+      - { name: body, label: "النص بالعربي — استخدم «عنوان 2» لتقسيم الفصول", widget: markdown }
+      - { name: body_en, label: "النص بالإنجليزي (اختياري)", widget: markdown, required: false }

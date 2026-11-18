@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>هشاشة الحياة — علاء عابد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. TOKENS — edit colors, fonts and sizes here
+   ========================================================= */
+:root {
+  --paper:      #F6F2EA;   /* warm off-white page */
+  --paper-deep: #EEE8DD;   /* highlighted paragraph background */
+  --ink:        #2B2825;   /* body text */
+  --ink-soft:   #5E5750;   /* secondary text */
+  --muted:      #9A9083;   /* labels, numerals */
+  --line:       #D8CFC1;   /* hairlines and rules */
+  --accent:     #8C7B63;   /* quiet bronze for small marks */
+
+  --f-title: "Amiri", "Noto Naskh Arabic", "Times New Roman", serif;
+  --f-body:  "Noto Naskh Arabic", "Amiri", "Geeza Pro", "Arial", serif;
+  --f-ui:    "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", sans-serif;
+
+  --measure: 720px;
+  --body-size: clamp(1.125rem, 1rem + 0.45vw, 1.3rem);
+  --body-lh: 2.15;
+  --scale: 1;              /* changed by the text-size control */
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--paper-deep); color: var(--ink); }
+
+a { color: inherit; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+/* =========================================================
+   2. READING PROGRESS + BACK TO TOP
+   ========================================================= */
+.progress {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  height: calc(2px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  pointer-events: none;
+}
+.progress span {
+  display: block;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  margin-inline-start: 0; /* grows from the right in RTL */
+}
+
+.to-top {
+  position: fixed;
+  left: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  display: grid; place-items: center;
+  cursor: pointer;
+  opacity: 0; visibility: hidden;
+  transition: opacity .4s ease, visibility .4s ease, border-color .3s ease, color .3s ease;
+  z-index: 40;
+}
+.to-top.show { opacity: 1; visibility: visible; }
+.to-top:hover { border-color: var(--accent); color: var(--ink); }
+.to-top svg { width: 16px; height: 16px; }
+
+/* ---- Reading controls: text size + bold ---- */
+.text-size {
+  position: fixed;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+  left: 1.25rem;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  padding: 2px;
+}
+.text-size button {
+  width: 42px; height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  line-height: 1;
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background-color .25s ease, color .25s ease;
+}
+.text-size button:hover:not(:disabled) { background: var(--paper-deep); color: var(--ink); }
+.text-size button:disabled { color: var(--line); cursor: default; }
+.text-size svg { width: 24px; height: 24px; display: block; }
+.text-size button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.text-size button[aria-pressed="true"]:hover { background: var(--ink); color: var(--paper); }
+.text-size .sep { width: 1px; height: 18px; background: var(--line); }
+.text-size .level {
+  position: absolute;
+  top: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .75rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.text-size .level.on { opacity: 1; }
+
+/* =========================================================
+   3. OPENING
+   ========================================================= */
+.opening {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.emblem {
+  width: 120px; height: 120px;
+  margin-bottom: 3.5rem;
+  color: var(--ink);
+}
+.emblem circle.ring { stroke: var(--line); }
+.emblem .ring { stroke: var(--line); }
+
+.emblem circle.dot  { fill: var(--accent); }
+
+.opening h1 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 1.6rem + 4.5vw, 4.6rem);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0;
+}
+.opening .subtitle {
+  font-family: var(--f-title);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+  margin: 1.25rem 0 0;
+}
+.opening .rule {
+  width: 48px; height: 1px;
+  background: var(--line);
+  margin: 3rem auto 2.25rem;
+}
+
+.contents {
+  list-style: none;
+  padding: 0; margin: 0;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  line-height: 2.2;
+  color: var(--ink-soft);
+  columns: 2;
+  column-gap: 3rem;
+  text-align: right;
+}
+.contents a {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s ease, color .3s ease;
+}
+.contents a:hover { color: var(--ink); border-color: var(--line); }
+.contents .n { color: var(--muted); margin-inline-end: .6rem; }
+
+.begin {
+  margin-top: 3rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .9rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex; flex-direction: column; align-items: center; gap: .6rem;
+  transition: color .3s ease;
+}
+.begin:hover { color: var(--ink); }
+.begin i { display: block; width: 1px; height: 36px; background: var(--line); }
+
+/* =========================================================
+   4. TEXT BODY
+   ========================================================= */
+main {
+  font-size: calc(var(--body-size) * var(--scale));
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+}
+
+section.chapter { padding-top: 6rem; }
+
+.chapter-head {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.chapter-head .n {
+  display: block;
+  font-family: var(--f-title);
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: .5rem;
+}
+.chapter-head h2 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: calc(clamp(1.7rem, 1.3rem + 1.4vw, 2.3rem) * var(--scale));
+  line-height: 1.5;
+  margin: 0;
+}
+.chapter-head::after {
+  content: "";
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+  margin: 1.5rem auto 0;
+}
+
+p { margin: 0 0 1.6em; }
+
+/* the very first line of the text */
+.lead {
+  font-family: var(--f-title);
+  font-size: 1.45em;
+  line-height: 1.9;
+  margin-bottom: 1.2em;
+}
+
+/* stacked short lines kept in sequence */
+.stack p { margin-bottom: .35em; }
+.stack { margin: 0 0 1.6em; }
+
+/* large centered pull quote — the text itself, in place */
+.pull {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.55rem, 1.2rem + 1.4vw, 2.1rem) * var(--scale));
+  line-height: 1.75;
+  text-align: center;
+  margin: 3.5rem auto;
+  max-width: 34ch;
+  color: var(--ink);
+}
+.pull::before, .pull::after {
+  content: "";
+  display: block;
+  width: 32px; height: 1px;
+  background: var(--line);
+  margin: 0 auto 1.5rem;
+}
+.pull::after { margin: 1.5rem auto 0; }
+
+/* soft highlighted paragraph */
+.mark {
+  background: var(--paper-deep);
+  padding: 1.4rem 1.6rem;
+  border-radius: 2px;
+  margin: 2.5rem 0;
+  font-size: 1.06em;
+}
+
+/* slightly larger single line with breathing room */
+.breath {
+  font-size: 1.15em;
+  font-weight: 500;
+  margin: 2.5rem 0;
+}
+
+/* an inner voice — the separate self speaking */
+.voice {
+  border-inline-start: 1px solid var(--line);
+  padding-inline-start: 1.5rem;
+  margin: 2.5rem 0;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: 1.08em;
+}
+.voice p { margin-bottom: .35em; }
+
+/* nature's imagined speech */
+.speech {
+  margin: 2rem 0 2.5rem;
+  padding: 0 1.5rem;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* two lines placed as a pair */
+.pair {
+  margin: 3.5rem 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.3rem, 1.1rem + .8vw, 1.65rem) * var(--scale));
+  line-height: 1.8;
+}
+.pair p { margin: 0; }
+.pair p + p { color: var(--ink-soft); margin-top: .8rem; }
+
+/* the litany of small things */
+.litany {
+  list-style: none;
+  margin: 2.5rem 0;
+  padding: 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  line-height: 2.3;
+}
+.litany li { color: var(--ink-soft); transition: color .3s ease; }
+.litany li:hover { color: var(--ink); }
+
+/* the final line */
+.final {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.8rem, 1.3rem + 2vw, 2.6rem) * var(--scale));
+  line-height: 1.7;
+  text-align: center;
+  margin: 5rem auto 1rem;
+  max-width: 22ch;
+}
+.final-mark {
+  display: flex; justify-content: center; margin: 2.5rem 0 0;
+}
+.final-mark svg { width: 44px; height: 44px; }
+.final-mark .ring { stroke: var(--line); }
+.final-mark .dot { fill: var(--accent); }
+
+/* closing words from the speaker */
+.afterword {
+  margin-top: 7rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  font-size: .9em;
+  color: var(--ink-soft);
+  line-height: 2;
+}
+.afterword .label {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.afterword p { margin-bottom: 1em; }
+.afterword .farewell {
+  font-family: var(--f-title);
+  font-size: 1.15em;
+  color: var(--ink);
+  margin-top: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 3rem 1.5rem 4rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* =========================================================
+   4b. BOLD READING MODE
+   ========================================================= */
+.is-bold main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold main :is(.lead, .pull, .final, .voice, .speech, .pair, .litany, .farewell, .sanskrit) { font-weight: 700; }
+
+/* =========================================================
+   4d. PAGE-SPECIFIC ELEMENTS
+   ========================================================= */
+.emblem .wave { stroke: var(--ink-soft); }
+.opening .latin-title {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 1.4rem + 3.8vw, 4rem);
+  line-height: 1.25;
+  direction: ltr;
+}
+.opening .ar-title {
+  font-family: var(--f-title);
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  color: var(--ink-soft);
+  margin: 1.25rem 0 0;
+}
+.opening .byline {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  color: var(--muted);
+  margin: .9rem 0 0;
+  letter-spacing: .04em;
+}
+
+/* the ♪ pauses of the original talk */
+.note {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8em;
+  line-height: 1;
+  margin: .4em 0 1.6em;
+  user-select: none;
+}
+
+/* Sanskrit phrase with its translation */
+.sanskrit { text-align: center; margin: 2.5rem 0; }
+.sanskrit p { margin: 0; }
+.sanskrit p:first-child {
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.2rem);
+  letter-spacing: .02em;
+}
+.sanskrit p + p { color: var(--ink-soft); font-family: var(--f-title); font-size: 1.2em; margin-top: .4rem; }
+
+.speech p { margin: 0 0 .3em; }
+.stack.indent { padding-inline-start: 1.25rem; border-inline-start: 1px solid var(--line); }
+.mark.stack-in p { margin: 0 0 .4em; }
+.mark.stack-in p:last-child { margin-bottom: 0; }
+
+/* =========================================================
+   4e. ENGLISH VERSION
+   ========================================================= */
+.lang[hidden] { display: none !important; }
+.lang-en {
+  --f-title: "Cormorant Garamond", "Garamond", "Georgia", serif;
+  --f-body:  "Literata", "Georgia", "Times New Roman", serif;
+  font-family: var(--f-body);
+  line-height: 1.8;
+  hyphens: auto;
+}
+.lang-en .chapter-head .n { font-size: 1rem; }
+.lang-en .chapter-head h2 { font-weight: 600; }
+.lang-en .opening .latin-title { font-weight: 600; }
+.lang-en .opening .ar-title { font-style: italic; }
+.lang-en .lead { font-size: 1.35em; }
+.lang-en .pull,
+.lang-en .final { font-weight: 600; line-height: 1.5; }
+.lang-en .pair,
+.lang-en .litany,
+.lang-en .speech,
+.lang-en .voice { font-size: 1.15em; }
+.contents { text-align: start; }
+.is-bold .lang-en main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold .lang-en main :is(.pull, .pair, .voice, .speech, .litany, .sanskrit) { font-weight: 700; }
+
+/* language toggle button inside the reading controls */
+.text-size .lang-btn {
+  font-family: var(--f-ui);
+  font-size: .8rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+.text-size .lang-btn .ar-glyph { font-family: "Amiri", serif; font-size: 1.25rem; line-height: 1; }
+
+/* =========================================================
+   4f. CONVERSATION
+   ========================================================= */
+/* the interviewer's turns */
+.q {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: 1.4rem;
+  margin: 2rem 0;
+  color: var(--ink-soft);
+}
+.q p { margin-bottom: .9em; }
+.q p:last-child { margin-bottom: 0; }
+.q .q-strong { color: var(--ink); font-weight: 500; }
+/* short replies: "yes", "right", "mhm" */
+.aside {
+  color: var(--muted);
+  font-size: .9em;
+  margin: -.4em 0 1.4em;
+}
+.small { font-size: .88em; color: var(--ink-soft); }
+
+/* speaker names */
+.who {
+  font-family: var(--f-ui);
+  font-weight: 400;
+  font-size: .78em;
+  color: var(--accent);
+  margin-inline-end: .45em;
+  font-style: normal;
+}
+
+/* speaker line above a turn */
+.speaker {
+  font-family: var(--f-ui);
+  font-size: .8em;
+  color: var(--accent);
+  margin: 2rem 0 .4em;
+  line-height: 1.4;
+}
+.q .speaker { margin-top: 0; }
+
+/* emphasis carried over from the source text */
+main strong { font-weight: 600; }
+.lang-en main strong { font-weight: 600; }
+.pull strong, .final strong { font-weight: inherit; }
+.byline a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .3s ease, color .3s ease; }
+.byline a:hover { color: var(--ink); border-color: var(--accent); }
+.afterword .speaker { margin-top: 0; }
+
+/* guided meditation passage */
+.guided {
+  margin: 2.5rem 0;
+  padding: 1.8rem 1.6rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.guided p { margin-bottom: 1.1em; }
+.guided p:last-child { margin-bottom: 0; }
+.unclear { color: var(--muted); font-size: .85em; }
+
+.lang-ar .byline:not([dir="ltr"]) { letter-spacing: 0; font-family: var(--f-title); font-size: 1.05rem; }
+
+/* closing echo of key lines */
+.echo { text-align: center; font-family: var(--f-title); font-size: 1.2em; line-height: 2; color: var(--ink-soft); margin: 2rem 0; }
+.echo p { margin: 0 0 .5em; }
+
+/* sponsor segment kept in place, set apart */
+.ad {
+  margin: 5rem 0 0;
+  padding: 1.6rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: .82em;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.ad .label { font-family: var(--f-ui); font-size: .85rem; margin-bottom: 1rem; }
+.ad p { margin-bottom: .8em; }
+
+/* =========================================================
+   5. RESPONSIVE
+   ========================================================= */
+@media (max-width: 640px) {
+  .opening { padding: 5rem 1.25rem 3rem; }
+  .emblem { width: 88px; height: 88px; margin-bottom: 2.5rem; }
+  .opening .rule { margin: 2.25rem auto 1.75rem; }
+  .contents { columns: 1; text-align: center; }
+
+  main { padding: 0 1.25rem 4rem; }
+  section.chapter { padding-top: 4rem; }
+  .chapter-head { margin-bottom: 2.5rem; }
+
+  .pull { margin: 2.5rem auto; }
+  .mark { padding: 1.1rem 1.15rem; margin: 2rem -.25rem; }
+  .voice { padding-inline-start: 1.1rem; }
+  .speech { padding: 0 .5rem; }
+  .pair, .litany { margin: 2.5rem 0; }
+  .final { margin-top: 3.5rem; }
+  .afterword { margin-top: 5rem; }
+
+  .to-top { left: 1rem; width: 40px; height: 40px; }
+  .text-size { left: 1rem; }
+  .text-size button { width: 40px; height: 36px; }
+}
+
+@media print {
+  .text-size,
+  .progress, .to-top, .begin, .contents { display: none; }
+  body { background: #fff; }
+}
+.guided{border-inline-start:2px solid var(--line);padding:1.1em 1.4em;margin:2.2em 0;color:var(--ink-soft);background:var(--paper-deep);border-radius:4px;}
+.subhead{font-family:var(--f-ui);font-size:.92em;font-weight:600;color:var(--accent);letter-spacing:.02em;margin:3.2rem 0 1.1rem;}
+</style>
+<style>.home-link{position:fixed;top:calc(1rem + env(safe-area-inset-top,0px));right:1.25rem;z-index:45;font-family:var(--f-ui);font-weight:300;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:.45rem 1rem;background:var(--paper);transition:border-color .3s,color .3s}.home-link:hover{color:var(--ink);border-color:var(--accent)}@media print{.home-link{display:none}}</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+<a class="home-link" href="../index.html" data-en="← Home">→ الرئيسية</a>
+<div class="text-size" role="group" aria-label="أدوات القراءة">
+  <button type="button" id="textSmaller" aria-label="تصغير النص" title="تصغير النص"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 8.5 7 13 18M5.6 14h5.8"/><path d="M16 12h5"/></svg></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" id="textLarger" aria-label="تكبير النص" title="تكبير النص"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 20 8.5 4l6 16M4.7 14.5h7.6"/><path d="M16.5 8.5h5M19 6v5"/></svg></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" id="textBold" aria-pressed="false" aria-label="نص عريض" title="نص عريض / عادي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5h6a3.6 3.6 0 0 1 0 7.2H7zM7 11.7h7a3.9 3.9 0 0 1 0 7.8H7z"/></svg></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" id="langToggle" class="lang-btn" aria-label="English version" title="English / العربية">EN</button>
+  <span class="level" id="textLevel" aria-live="polite"></span>
+</div>
+
+<div class="lang lang-ar" id="langAr" lang="ar" dir="rtl">
+<header class="opening" id="top">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <circle class="ring" cx="60" cy="60" r="30" fill="none" stroke-width="1" opacity=".5"/>
+    <path class="ring" d="M60 18 L60 102 M18 60 L102 60" fill="none" stroke-width="1" opacity=".35"/>
+    <circle class="dot" cx="60" cy="60" r="3"/>
+  </svg>
+  <h1 class="latin-title">هشاشة الحياة</h1>
+  <p class="byline"><a href="../index.html">علاء عابد</a></p>
+  <div class="rule"></div>
+  <nav aria-label="الفهرس">
+    <ol class="contents">
+      <li><a href="#c1"><span class="n">١</span>مقدمة</a></li>
+      <li><a href="#c2"><span class="n">٢</span>أكواب الخزف</a></li>
+      <li><a href="#c3"><span class="n">٣</span>هشاشة الحياة</a></li>
+      <li><a href="#c4"><span class="n">٤</span>النحلة والدعسوقة</a></li>
+      <li><a href="#c5"><span class="n">٥</span>الحزن والفقدان</a></li>
+      <li><a href="#c6"><span class="n">٦</span>السعادة وما لا نتحكم فيه</a></li>
+      <li><a href="#c7"><span class="n">٧</span>السفينة ونداء الرحيل</a></li>
+      <li><a href="#c8"><span class="n">٨</span>الموت ليس شرًا</a></li>
+      <li><a href="#c9"><span class="n">٩</span>ابقَ قريبًا من أحبائك</a></li>
+    </ol>
+  </nav>
+  <a class="begin" href="#c1">ابدأ القراءة<i></i></a>
+</header>
+
+<main>
+<section class="chapter" id="c1">
+  <div class="chapter-head"><span class="n">١</span><h2>مقدمة</h2></div>
+  <p class="lead">أريد أن أكتب هذا المقال لأن عنوانه، بصراحة، جاء إلى ذهني بينما كنت أستعد للنوم في إحدى الليالي الماضية. فكرت فيه، وأخرجت هاتفي فورًا. أعتقد أن الوقت كان حوالي الساعة الواحدة والنصف بعد منتصف الليل، أي في وقت متأخر جدًا، لكنني كنت أعرف أن عليّ أن يكون هذا موضوع مقالي القادم.</p>
+  <blockquote class="pull">لقد مات اليوم شخص في مثل عمرك.</blockquote>
+  <div class="stack">
+    <p>شخص كان يمكن أن يبلغ من العمر 24 عامًا، أو 52، أو 35، أو 80، أو حتى 14 عامًا. لا يهم العمر، ولا يهم من يقرأ هذه الكلمات، أنت تحديدًا. هذه الحقيقة تنطبق علينا جميعًا.</p>
+    <p>لا شيء في هذه الحياة مضمون، ولا شيء مؤكد.</p>
+    <p>كل المشكلات، وكل مشاعر القلق، وكل الأزمات، وكل الأشياء التي تسعى وراءها في حياتك، تقوم في الأساس على افتراض واحد: أن الغد مضمون.</p>
+  </div>
+</section>
+<section class="chapter" id="c2">
+  <div class="chapter-head"><span class="n">٢</span><h2>أكواب الخزف</h2></div>
+  <p class="lead">لقد قرأت كتابَي إبكتيتوس، «المحادثات» و«المختصر»، مرات لا أعرف عددها. وهناك مقطع معين في كتاب «المختصر» يتحدث فيه عن ضرورة التعامل مع الأشخاص المقربين منك كما لو كانوا أكوابًا من الخزف.<br>ماذا يقصد بذلك؟</p>
+  <div class="stack">
+    <p>يقصد أن أكواب الخزف، والأكواب عمومًا، أشياء قابلة للكسر. فإذا انزلقت من يدك، فقد تتحطم.</p>
+    <p>ومن المثير للاهتمام أن هذا حدث لي بالفعل قبل أيام.</p>
+    <p>كنت في عجلة من أمري في الصباح، أحاول إعداد قهوتي. أتذكر أنني كنت مستعجلًا، ربما كان لدي اجتماع أو كان عليّ الذهاب إلى مكان ما، لكنني كنت أريد أن أشرب قهوتي أولًا.</p>
+  </div>
+  <div class="stack">
+    <p>فتحت الخزانة وأخرجت الكوب، وبدأت أتحرك بسرعة وارتباك. وفجأة انزلق الكوب من بين أطراف أصابعي. حاولت الإمساك به، بل أعتقد أنني حاولت حتى مدّ قدمي لأمنع سقوطه وتحطمه، لكنني لم أتمكن من ذلك.</p>
+    <p>سقط الكوب وتحطم إلى قطع.</p>
+    <p>وأفكر في هذا الموقف عندما أتذكر إبكتيتوس، الفيلسوف الرواقي، وحديثه عن هشاشة الحياة، وعن ضرورة ألا نمنح الأشياء الخارجية سلطة كبيرة على حياتنا.</p>
+  </div>
+  <p>قد تتساءل: ما المقصود بالأشياء الخارجية؟</p>
+  <div class="stack">
+    <p>إنها المال، والوظيفة، ورأي الآخرين فيك، وغير ذلك.</p>
+    <p>لكن إبكتيتوس يتحدث أيضًا عن الجسد تحديدًا، ويعتبره من الأشياء الخارجية.</p>
+    <p>وذلك لأنك تستطيع التأثير في جسدك، كما تستطيع التأثير في وظيفتك وأموالك. يمكنك أن تعمل بجد، وأن تتصرف بذكاء، وأن تخطط جيدًا. يمكنك التأثير في هذه الأمور إلى حد معين.</p>
+  </div>
+  <div class="stack">
+    <p>لكنك في النهاية لا تستطيع التحكم في النتيجة.</p>
+    <p>لا يوجد شيء يمكنك فعله يضمن أنك ستكون بصحة جيدة غدًا، أو أنك ستكون على قيد الحياة غدًا، أو أنك ستحصل على كل ما تتمناه في هذه الحياة.</p>
+    <p>هناك أمور مثل الفضيلة، والازدهار الإنساني، والحياة التي تقوم على التأمل والفحص الذاتي. وهذه هي الأشياء التي ينبغي أن تجعلها بوصلتك في الحياة.</p>
+  </div>
+  <div class="stack">
+    <p>لكنني لا أريد التركيز على هذا الجانب في هذا المقال، لأنه قد يكون موضوعًا مستقلًا بحد ذاته.</p>
+    <p>أريد أن أتحدث عن حقيقة واحدة:</p>
+  </div>
+</section>
+<section class="chapter" id="c3">
+  <div class="chapter-head"><span class="n">٣</span><h2>هشاشة الحياة</h2></div>
+  <p class="lead">لقد مات اليوم شخص في مثل عمرك.<br>احتفلت بعيد ميلادي السابع والعشرين منذ بضعة أشهر، وأفكر أحيانًا، خصوصًا عند النظر إلى الأجيال السابقة، في مدى افتقارهم إلى التكنولوجيا والطب الحديث، وفي عدد الأشخاص الذين كانوا يموتون في سن مبكرة.<br>لم تكن وفيات الأطفال أمرًا نادرًا، بل كان كثير من الشباب يموتون في العشرينيات من أعمارهم، سواء في الحروب أو بسبب الأمراض، بل وحتى وهم أطفال.</p>
+  <div class="stack">
+    <p>لم تتح لهم الفرصة ليعيشوا ما نسميه الحياة الكاملة للإنسان.</p>
+    <p>والأمر المثير للتفكير أننا حتى اليوم، رغم كل ما نملكه من رعاية صحية وتكنولوجيا ومعلومات، ما زلنا نرى أشخاصًا يموتون في سن مبكرة.</p>
+    <p>لقد شاهدت مؤخرًا خبرًا عن فتاة مسكينة تبلغ من العمر 24 عامًا، أي أصغر مني بعامين تقريبًا. كانت تشارك في سباق ماراثون، وقبل أن تصل إلى خط النهاية بقليل، سقطت على الأرض وفارقت الحياة بسبب توقف القلب.</p>
+  </div>
+  <div class="stack">
+    <p>أعتقد أنه كانت لديها حالة صحية معينة مرتبطة بالإجهاد الشديد، أو شيء من هذا القبيل. لست طبيبًا بالطبع، لكن مثل هذه الأمور يمكن أن تحدث حتى للشباب.</p>
+    <p>وهكذا تنتهي الحياة.</p>
+    <p>فكّر في وعيك، وفي تعقيد ذكرياتك، وفي جميع الروابط العصبية الموجودة داخل دماغك، وفي كل هذه التصورات التي تكوّن بها واقعك.</p>
+  </div>
+  <div class="stack">
+    <p>نحن نتحدث كثيرًا عن العالم الخارجي والكون، لكن هناك كونًا كاملًا داخل عقلك.</p>
+    <p>تخيّل أن كل هذا التعقيد يختفي في لحظة واحدة.</p>
+    <p>ترحل عن الحياة، وينتهي كل شيء بالنسبة إليك.</p>
+  </div>
+  <p>تخيّل أنك تقفز إلى الأمام عبر الزمن، إلى المراحل البعيدة من عمر الكون. هل سنصل إلى مليارات السنين، حيث يصبح كل شيء مظلمًا، وتختفي النجوم، ولا يبقى سوى الثقوب السوداء؟</p>
+  <div class="stack">
+    <p>أعتقد أنه من المهم أن نتوقف قليلًا ونتأمل مدى هشاشة الحياة حقًا.</p>
+    <p>أتذكر دائمًا كوب الخزف عندما انزلق من يدي.</p>
+    <p>فكّر في المرات التي حاولت فيها الإمساك بكوب كان يسقط من يدك، ولم تتمكن من ذلك.</p>
+  </div>
+  <div class="stack">
+    <p>وأفكر أيضًا في اليوم الذي اضطررت فيه إلى إنهاء حياة كلبي الذي رافقني منذ طفولتي.</p>
+    <p>كنت أتمنى لو أنني أستطيع فعل شيء لإنقاذه.</p>
+    <p>أتذكر أن الطبيب البيطري قال إن كل شيء في جسده كان سليمًا تمامًا، باستثناء قلبه.</p>
+  </div>
+  <p>ماذا كان بإمكاني أن أفعل؟</p>
+  <div class="stack">
+    <p>لا شيء.</p>
+    <p>لم يكن هناك شيء أستطيع فعله.</p>
+    <p>هذه أمور خارجة عن سيطرتنا، أليس كذلك؟</p>
+  </div>
+  <div class="stack">
+    <p>إنها قوى الطبيعة، ومرور الزمن، وأشياء تأتي وتذهب.</p>
+    <p>إنها دورة الحياة.</p>
+    <p>أحيانًا أنظر إلى النمل الصغير الذي يزحف فوق التراب، وأفكر في أنه جزء من هذا الواقع بقدر ما أنا جزء منه.</p>
+  </div>
+  <div class="stack">
+    <p>ربما يمكننا الدخول في نقاش فلسفي حول الوعي، وحول ما إذا كانت حياة الإنسان أكثر قيمة من حياة الكائنات الأخرى. لكن هذا ليس موضوعنا هنا.</p>
+    <p>ما أقصده هو ذلك الشعور بالتعاطف الذي يجعلني أدرك أنك وأنا وهذا النمل الصغير، جميعنا موجودون هنا للمرة الأولى، وربما للمرة الأخيرة، ضمن هذه الدورة من الحياة.</p>
+    <p>النملة الصغيرة، والدعسوقة، وغيرها من الكائنات التي نتجاهلها كثيرًا في حياتنا، وقد ندوس عليها دون أن نشعر.</p>
+  </div>
+  <div class="stack">
+    <p>أحاول أن أبذل جهدًا إضافيًا عندما أرى دعسوقة مقلوبة على ظهرها وتحاول الزحف.</p>
+    <p>أقترب منها، وأحملها، وأضعها في مكان تستطيع مواصلة طريقها منه.</p>
+  </div>
+</section>
+<section class="chapter" id="c4">
+  <div class="chapter-head"><span class="n">٤</span><h2>النحلة والدعسوقة</h2></div>
+  <p class="lead">خرجت منذ بضعة أسابيع لشرب القهوة، وحدث معي موقف غريب جعلني أفكر في الحياة.<br>أنا شخص أميل إلى اللاأدرية، لكنني أقدّر حقيقة أن العقل البشري لا يستطيع استيعاب عظمة الواقع، أو فهم احتمالات وجودنا بهذا الشكل.<br>كنت أجلس في مقهى له شرفة خارجية. كان الطقس يشبه أجواء الخريف؛ دافئًا، مع نسمات هواء باردة قليلًا.</p>
+  <div class="stack">
+    <p>وبالقرب من الشرفة كانت هناك رقعة من الزهور، ورأيت نحلة عليها.</p>
+    <p>كنت أشرب قهوتي، ونظرت إليها، ولاحظت أنها كانت في لحظاتها الأخيرة على ما يبدو.</p>
+    <p>كانت ضعيفة، وتحاول الزحف بصعوبة. لا أعرف تحديدًا ما الذي كانت تحاول فعله، لكنني شعرت بأنها تقترب من نهاية حياتها.</p>
+  </div>
+  <div class="stack">
+    <p>حاولت حمايتها.</p>
+    <p>كان الجو عاصفًا قليلًا، فحاولت وضع بعض الأوراق حولها لتوفير الحماية لها، لكن الأوراق كانت تسقط فوقها أحيانًا.</p>
+    <p>كنت أحاول مساعدتها، لكن مهما حاولت، لم يكن هناك ما أستطيع فعله لإنقاذها.</p>
+  </div>
+  <div class="stack">
+    <p>كان الموقف يشبه تمامًا سقوط كوب الخزف من يدي ومحاولتي استخدام قدمي لمنعه من التحطم.</p>
+    <p>لكن بعض الأشياء تحدث ببساطة.</p>
+    <p>الكوب يتحطم، والنحلة تموت، ونحن أيضًا سنرحل يومًا ما.</p>
+  </div>
+  <div class="stack">
+    <p>إنه شعور غير مريح، وما زلت أعاني معه كل يوم.</p>
+    <p>لكنني أعتقد أن كتابة مثل هذه النصوص قد تساعدني، وربما تساعد شخصًا يقرؤها، على الشعور بوجود رابط إنساني يجمعنا.</p>
+    <p>أعرف أن هناك الكثير من الأخبار، والكثير من الصراعات، وأسبابًا لا حصر لها تجعلنا نشعر بالسلبية ونشتكي من كل شيء.</p>
+  </div>
+  <p>وأعتقد أن هذا يحدث خصوصًا عندما نكون صغارًا في السن.</p>
+</section>
+<section class="chapter" id="c5">
+  <div class="chapter-head"><span class="n">٥</span><h2>الحزن والفقدان</h2></div>
+  <p class="lead">لطالما أعجبتني وجهة نظر أرسطو في كتابه «الأخلاق النيقوماخية».<br>فهذا الكتاب، من وجهة نظره، لم يكن موجّهًا إلى الشباب تحديدًا، لأنهم لم يختبروا بعد ثقل الحياة، ولم يتعرفوا بما يكفي إلى معاناتها، وإلى الأشياء التي تشكل جزءًا لا يتجزأ من طبيعتها.<br>وأعتقد أن هناك جمالًا عظيمًا في المعاناة.</p>
+  <div class="stack">
+    <p>لقد تعلمت ذلك من خلال تجاربي الشخصية مع الموت والفقدان، والتي كانت كثيرة للأسف.</p>
+    <p>مررت بتجارب صعبة للغاية. أعتقد أنني فقدت سبعة أو ثمانية من أفراد عائلتي خلال عام واحد، بما في ذلك كلبي.</p>
+    <p>وكان هذا أحد الأسباب الرئيسية التي دفعتني إلى إنشاء حسابي على وسائل التواصل الاجتماعي.</p>
+  </div>
+  <div class="stack">
+    <p>لم أكن أعرف بالضبط لماذا فعلت ذلك، لكنني أردت بطريقة ما أن أعبّر عن حزني، وأن أُخرج تلك المشاعر المختلطة التي كانت بداخلي.</p>
+    <p>لأن مشاعري كانت أحيانًا متقلبة بشكل غريب.</p>
+    <p>أنا متأكد أنك ربما مررت بشيء مشابه إذا كنت قد اختبرت الفقدان في حياتك.</p>
+  </div>
+  <div class="stack">
+    <p>من الغريب مثلًا أن يأتي شخص ويقول لك: «أنا آسف لفقدانك».</p>
+    <p>وأحيانًا كنت أشعر بالانزعاج من سماع هذه العبارة.</p>
+    <p>مع أن الشخص لا يفعل سوى محاولة مواساتك والتواصل معك إنسانيًا.</p>
+  </div>
+  <div class="stack">
+    <p>لكنني كنت أنزعج، لأنني كنت أشعر وكأن كلامه يذكّرني بأن ما حدث حقيقة، بينما كنت أرفض الاعتراف بها.</p>
+    <p>كنت أقول في داخلي: لا، هذا لا يحدث. إنهم لم يرحلوا. إنهم ما زالوا هنا.</p>
+    <p>من الغريب كيف يعمل عقلنا أحيانًا، وكيف يمكن أن تتولد لدينا أفكار غير منطقية.</p>
+  </div>
+  <div class="stack">
+    <p>وأحب الطريقة التي يتحدث بها إبكتيتوس عن الانفعالات غير العقلانية، ويحذرنا منها، لأنها قد تفسد النفس وتؤثر في قدرتنا على إصدار أحكام سليمة.</p>
+    <p>والعقلانية، أو القدرة على التفكير المنطقي، هي ما يميز الإنسان.</p>
+    <p>فأرسطو يرى أننا كائنات عاقلة واجتماعية، وأن العقل هو قدرتنا الفريدة التي تميزنا عن غيرنا.</p>
+  </div>
+</section>
+<section class="chapter" id="c6">
+  <div class="chapter-head"><span class="n">٦</span><h2>السعادة وما لا نتحكم فيه</h2></div>
+  <p class="lead">أما إبكتيتوس، فهو شديد الاهتمام بمفهوم السعادة.<br>ويرى أن النتائج التي نصل إليها في الحياة لا ينبغي أن تكون مرتبطة بشكل مباشر بسعادتنا.<br>هو لا يقول إن علينا ألا نهتم بصحتنا لأننا سنمرض في النهاية.</p>
+  <div class="stack">
+    <p>بل يقول إننا نستطيع بالطبع التأثير في صحتنا، من خلال ممارسة الرياضة وتناول الطعام الصحي، لكن لا ينبغي أن نربط سعادتنا بنتيجة لا نملك التحكم الكامل فيها.</p>
+    <p>فمثلًا، إذا مرضت، فهذا لا يعني بالضرورة أنك أصبحت إنسانًا تعيسًا، أو أن حياتك لم تعد سعيدة.</p>
+    <p>هذا تحديدًا ما كان يحاول أن يوضحه لنا.</p>
+  </div>
+  <div class="stack">
+    <p>فنحن جميعًا سنمرض يومًا ما، سواء كان ذلك مجرد إنفلونزا عادية، أو لا قدر الله مرضًا أكثر خطورة.</p>
+    <p>وأتمنى حقًا لكل شخص يقرأ هذه الكلمات أن ينعم بحياة جميلة وصحية.</p>
+    <p>أتمنى لنا جميعًا حياة مليئة بالخير والازدهار، خلال هذه الفترة القصيرة التي نقضيها هنا.</p>
+  </div>
+  <p>لكن الاعتقاد بأن امتلاك الكثير من المال يعني أن حياتي سعيدة، أو أن التمتع بصحة ممتازة يعني أنني سعيد، أو أن أكون مشهورًا ومعروفًا يعني أنني سعيد، هو اعتقاد إشكالي للغاية من وجهة نظر إبكتيتوس وكثير من الفلاسفة الرواقيين.</p>
+  <div class="stack">
+    <p>لأن كل هذه الأشياء تقع إلى حد كبير خارج نطاق سيطرتنا.</p>
+    <p>لا يوجد شيء منها يمكنك ضمانه بنسبة مئة في المئة.</p>
+    <p>نعم، تستطيع التأثير فيها، لكن النتيجة النهائية ليست مضمونة.</p>
+  </div>
+  <div class="stack">
+    <p>الأمر يشبه الامتحان.</p>
+    <p>يمكنك أن تدرس كثيرًا، وتقرأ كل ما يتعلق بالمادة، وتبذل جهدًا كبيرًا، لكن هذا لا يضمن بنسبة مئة في المئة أنك ستحصل على نتيجة جيدة في الامتحان النصفي أو النهائي.</p>
+    <p>فهناك عوامل خارجية كثيرة قد تؤثر في النتيجة.</p>
+  </div>
+  <div class="stack">
+    <p>ربما لم تنم جيدًا في الليلة السابقة، أو ربما قرر الأستاذ أو مجلس الجامعة تغيير الأسئلة في اللحظة الأخيرة.</p>
+    <p>هناك احتمالات كثيرة قد تحدث، وكلها أمور تتجاوز سيطرتك.</p>
+    <p>وأريد أن نربط كل هذا مرة أخرى بالفكرة الأساسية:</p>
+  </div>
+  <blockquote class="pull">لقد مات اليوم شخص في مثل عمرك.</blockquote>
+  <div class="stack">
+    <p>شخص كانت أمامه حياة كاملة.</p>
+    <p>كانت لديه خطط وأهداف ومخاوف وقلق، وربما كانت لديه أفكار تشبه أفكارك، وربما كانت لديه آراء تختلف تمامًا عن آرائك.</p>
+  </div>
+  <div class="stack">
+    <p>وربما لو جلستما في غرفة واحدة، لدخلتما في نقاش حاد واختلفتما حول بعض الأمور.</p>
+    <p>لكن في النهاية، نحن بشر، ونحن هنا لمرة واحدة، وربما لن تتكرر هذه التجربة.</p>
+    <p>أريدك أن تتأمل هذه الحقيقة من خلال تشبيه كوب الخزف.</p>
+  </div>
+  <div class="stack">
+    <p>لا شيء مضمون لنا في هذه الحياة.</p>
+    <p>أتمنى لي ولك الصحة الجيدة، لكننا نستطيع التأثير فيها فقط، أما النتيجة النهائية فليست بأيدينا.</p>
+  </div>
+</section>
+<section class="chapter" id="c7">
+  <div class="chapter-head"><span class="n">٧</span><h2>السفينة ونداء الرحيل</h2></div>
+  <p class="lead">هناك أيضًا مقطع في كتاب إبكتيتوس يتحدث فيه عن مثال لا أتذكر نصه حرفيًا.<br>لقد وضعت علامات على صفحات الكتاب وكل شيء، ودرست هذه الأفكار ضمن إحدى الدورات، وقرأت الكتاب عدة مرات، لكنني لا أتذكر المقطع بدقة.<br>يتحدث عن مثال يتعلق برحلة بحرية.</p>
+  <div class="stack">
+    <p>تخيل أنك ذهبت في رحلة على متن سفينة سياحية.</p>
+    <p>خلال الرحلة، تتوقف السفينة في أماكن مختلفة لزيارتها. وعندما تصل إلى مكان معين، ينزل الركاب لاستكشافه، لكن هناك وقتًا محددًا يجب عليهم فيه العودة إلى السفينة، وإلا ستغادر من دونهم.</p>
+    <p>يستخدم إبكتيتوس هذا المثال ليوضح لنا أننا يجب أن نعرف متى يحين وقت الرحيل.</p>
+  </div>
+  <div class="stack">
+    <p>فأنت لا تستطيع تحديد مدة حياتك.</p>
+    <p>يمكنك أن تبذل قصارى جهدك، وأن تعيش بأفضل طريقة ممكنة، وأن تؤثر في حياتك قدر استطاعتك.</p>
+    <p>لكن عندما يحين وقت الرحيل، لن يكون القرار بيدك.</p>
+  </div>
+  <div class="stack">
+    <p>عندما يناديك القارب، عليك أن تغادر.</p>
+    <p>وهذا ما أفهمه من تشبيه كوب الخزف، رغم أن إبكتيتوس يذهب في بعض أفكاره إلى مستوى أكثر تطرفًا لا أتفق معه.</p>
+    <p>فهو يتحدث مثلًا عن أنك عندما تحمل طفلك بين ذراعيك، يجب أن تدرك أنه سيموت يومًا ما، وألا تتعلق به بشدة، وأفكار أخرى من هذا النوع.</p>
+  </div>
+  <div class="stack">
+    <p>لا أتفق معه في هذا الجانب.</p>
+    <p>لكنني أتفق مع الفكرة الأساسية التي يطرحها في الكتاب.</p>
+  </div>
+  <div class="stack">
+    <p>يقول: اجعل الموت قريبًا منك.</p>
+    <p>اجعل الموت حاضرًا في ذهنك.</p>
+    <p>إذا قرأت لماركوس أوريليوس وغيره من الفلاسفة الرواقيين، فستجد أنهم يتحدثون عن أفكار مشابهة جدًا.</p>
+    <p>اجعل الموت قريبًا منك عندما تستيقظ في الصباح.</p>
+  </div>
+  <div class="stack">
+    <p>لم يكن هؤلاء الفلاسفة مفتونين بالموت، بل على العكس تمامًا.</p>
+    <p>فالإنسان بطبيعته لا يريد الموت، ومن الطبيعي أن يرغب في أن يعيش أطول فترة ممكنة.</p>
+    <p>لكنهم كانوا يستحضرون حقيقة الموت باستمرار، حتى يدركوا مدى هشاشة الحياة.</p>
+  </div>
+  <div class="stack">
+    <p>وحتى يتذكروا ضرورة البقاء بالقرب من أحبائهم، وأن يحبوهم بصدق، وأن يحتضنوهم، وأن يمنحوهم كل الحب الممكن.</p>
+    <p>لأن يومًا ما سيأتي، ولن يكونوا موجودين بعد ذلك.</p>
+    <p>لن تتناول معهم وجبات الغداء، ولن تشرب قهوة الصباح معهم، ولن تتمكن من الخروج معهم للمشي في الحديقة.</p>
+  </div>
+  <div class="stack">
+    <p>هذه الأشياء البسيطة التي نتعامل معها وكأنها ستظل موجودة إلى الأبد.</p>
+    <p>فنحن كبشر لدينا ميل إلى الاعتقاد بأن الأشياء ستبقى كما هي دائمًا، رغم أن الحياة تذكرنا باستمرار بعكس ذلك.</p>
+    <p>الحياة متغيرة، ومتدفقة، ولا تتوقف عن التحول.</p>
+  </div>
+  <div class="stack">
+    <p>وإذا قرأت الفلسفة الطاوية، أو بعض الفلسفات الشرقية، مثل أفكار لاوتسو، فستجد أن الأفعال التي نقوم بها في حياتنا لا ينبغي أن تكون دائمًا من أجل تحقيق مصالحنا الشخصية.</p>
+    <p>خذ المحيط مثالًا.</p>
+    <p>الأمواج تضرب جرفًا صخريًا، ومع مرور الوقت يتآكل الجرف وينهار.</p>
+  </div>
+  <div class="stack">
+    <p>لكن هدف الأمواج لم يكن تدمير الجرف.</p>
+    <p>الموجة كانت فقط تتصرف وفق طبيعتها.</p>
+  </div>
+</section>
+<section class="chapter" id="c8">
+  <div class="chapter-head"><span class="n">٨</span><h2>الموت ليس شرًا</h2></div>
+  <p class="lead">وبالمثل، الموت ليس شرًا في حد ذاته.<br>فنحن لا نعرف حقيقة ما هو الموت.<br>حتى سقراط لم يكن يعرف.<br>ولهذا لم يكن يخاف الموت بالطريقة التي يخافه بها الآخرون.</p>
+  <p>فهو لم يكن يعرف ما الذي سيحدث بعده، لكنه كان يعرف شيئًا واحدًا: أن الظلم، وإهمال النفس وعدم الاعتناء بها في هذه الحياة، أمور سيئة يمكننا إدراكها وفهمها.</p>
+</section>
+<section class="chapter" id="c9">
+  <div class="chapter-head"><span class="n">٩</span><h2>ابقَ قريبًا من أحبائك</h2></div>
+  <p class="lead">أعتقد أنني أريد أن أنهي المقال بهذه الفكرة:</p>
+  <blockquote class="pull">ابقَ قريبًا من أحبائك.</blockquote>
+  <div class="stack">
+    <p>أتمنى لكم الصحة الجيدة، وأتمنى لكم حياة رائعة.</p>
+    <p>وأريدكم أن تجعلوا الموت حاضرًا في أذهانكم، ليس لكي يفسد يومكم أو يجعلكم مكتئبين، بل لكي تستخدموا هذه الحقيقة في تنمية شعور عميق جدًا بالتعاطف.</p>
+  </div>
+  <div class="stack">
+    <p>قد يختلف معي البعض، وقد يقولون إن الناس سيستغلون طيبتك، أو إنهم سيدوسون عليك، أو غير ذلك من الآراء.</p>
+    <p>لكنني أعرف أن هناك شعورًا جميلًا للغاية عندما تنظر إلى كائن صغير مثل الدعسوقة، وتدرك أنك تملك القدرة على إيذائها.</p>
+    <p>يمكنك أن تدوس عليها، أو أن تتركها تموت دون اهتمام.</p>
+  </div>
+  <div class="stack">
+    <p>لكن بدلًا من ذلك، تختار مساعدتها.</p>
+    <p>فقط لأنك تريد مساعدتها.</p>
+    <p>تحملها على إصبعك الصغير، وتنزل بها الدرج، وتفتح الباب، وتبحث لها عن مكان آمن في الحديقة، ثم تتركها حرة لتواصل طريقها.</p>
+  </div>
+  <div class="stack">
+    <p>أنت لا تعرف ما الذي سيحدث لها بعد ذلك.</p>
+    <p>ربما يأتي شخص آخر ويدوس عليها.</p>
+    <p>لكن في تلك اللحظة القصيرة، ورغم أنك لا تستطيع التحكم في النتيجة، تستطيع اتخاذ قرار واعٍ بمساعدة كائن يحتاج إلى المساعدة.</p>
+  </div>
+  <div class="stack">
+    <p>كان بإمكانك تجاهله، أو حتى إيذائه، لكنك اخترت مساعدته.</p>
+    <p>فقط لأنك أردت ذلك.</p>
+    <p>لأنك أردت أن تمنحه فرصة للاستمرار في الحياة.</p>
+  </div>
+  <div class="stack">
+    <p>قد يكون لدى الناس فلسفات مختلفة، لكنني أعتقد أن هذه فلسفة جميلة.</p>
+    <p>وأنا أؤمن بها حقًا.</p>
+    <p>وأعتقد أنه لو آمن عدد أكبر من الناس بهذه الفكرة، لأصبح العالم مكانًا أفضل.</p>
+  </div>
+  <div class="final-mark" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/><circle class="dot" cx="22" cy="22" r="2.5"/></svg></div>
+</section>
+</main>
+</div>
+
+<div class="lang lang-en" id="langEn" lang="en" dir="ltr" hidden>
+<header class="opening">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <circle class="ring" cx="60" cy="60" r="30" fill="none" stroke-width="1" opacity=".5"/>
+    <path class="ring" d="M60 18 L60 102 M18 60 L102 60" fill="none" stroke-width="1" opacity=".35"/>
+    <circle class="dot" cx="60" cy="60" r="3"/>
+  </svg>
+  <h1 class="latin-title">The Fragility of Life</h1>
+  <p class="byline"><a href="../index.html">Alaa Abed</a></p>
+  <div class="rule"></div>
+  <nav aria-label="Contents">
+    <ol class="contents">
+      <li><a href="#e1"><span class="n">1</span>Introduction</a></li>
+      <li><a href="#e2"><span class="n">2</span>The Ceramic Cups</a></li>
+      <li><a href="#e3"><span class="n">3</span>The Fragility of Life</a></li>
+      <li><a href="#e4"><span class="n">4</span>The Bee and the Ladybird</a></li>
+      <li><a href="#e5"><span class="n">5</span>Grief and Loss</a></li>
+      <li><a href="#e6"><span class="n">6</span>Happiness and What We Cannot Control</a></li>
+      <li><a href="#e7"><span class="n">7</span>The Ship and the Call to Depart</a></li>
+      <li><a href="#e8"><span class="n">8</span>Death Is Not an Evil</a></li>
+      <li><a href="#e9"><span class="n">9</span>Stay Close to Your Loved Ones</a></li>
+    </ol>
+  </nav>
+  <a class="begin" href="#e1">Begin reading<i></i></a>
+</header>
+
+<main>
+<section class="chapter" id="e1">
+  <div class="chapter-head"><span class="n">1</span><h2>Introduction</h2></div>
+  <p class="lead">I want to write this essay because its title, honestly, came to me as I was getting ready for bed one night recently. I thought about it and took out my phone straight away. I think it was around half past one in the morning, very late, but I knew this had to be the subject of my next essay.</p>
+  <blockquote class="pull">Someone your age died today.</blockquote>
+  <div class="stack">
+    <p>Someone who might have been 24, or 52, or 35, or 80, or even 14. The age doesn't matter, and it doesn't matter who is reading these words, you in particular. This truth applies to all of us.</p>
+    <p>Nothing in this life is guaranteed, and nothing is certain.</p>
+    <p>All the problems, all the worries, all the crises, and all the things you chase in your life rest on one basic assumption: that tomorrow is guaranteed.</p>
+  </div>
+</section>
+
+<section class="chapter" id="e2">
+  <div class="chapter-head"><span class="n">2</span><h2>The Ceramic Cups</h2></div>
+  <div class="stack">
+    <p class="lead">I have read Epictetus's two books, the <i>Discourses</i> and the <i>Enchiridion</i>, more times than I can count. And there is a particular passage in the <i>Enchiridion</i> where he speaks of the need to treat the people close to you as if they were ceramic cups.</p>
+    <p>What does he mean by that?</p>
+  </div>
+  <div class="stack">
+    <p>He means that ceramic cups, and cups in general, are breakable things. If one slips from your hand, it may shatter.</p>
+    <p>Interestingly, this actually happened to me a few days ago.</p>
+    <p>I was in a rush in the morning, trying to make my coffee. I remember being in a hurry; maybe I had a meeting or somewhere to be, but I wanted to drink my coffee first.</p>
+  </div>
+  <div class="stack">
+    <p>I opened the cupboard and took out the cup, and started moving quickly and clumsily. Suddenly the cup slipped from my fingertips. I tried to catch it; I think I even tried to stick out my foot to stop it falling and breaking, but I couldn't.</p>
+    <p>The cup fell and shattered into pieces.</p>
+    <p>And I think of this moment when I remember Epictetus, the Stoic philosopher, and what he says about the fragility of life, and about not giving external things great power over our lives.</p>
+  </div>
+  <p>You may ask: what is meant by external things?</p>
+  <div class="stack">
+    <p>They are money, your job, other people's opinion of you, and so on.</p>
+    <p>But Epictetus also speaks specifically of the body, and counts it among external things.</p>
+    <p>That is because you can influence your body, just as you can influence your job and your money. You can work hard, act wisely and plan well. You can influence these things to a certain extent.</p>
+  </div>
+  <div class="stack">
+    <p>But in the end you cannot control the outcome.</p>
+    <p>There is nothing you can do that guarantees you will be healthy tomorrow, or alive tomorrow, or that you will get everything you wish for in this life.</p>
+    <p>There are things like virtue, human flourishing, and the life of reflection and self-examination. These are the things you should make your compass in life.</p>
+  </div>
+  <div class="stack">
+    <p>But I don't want to focus on that side in this essay, because it could be a subject in its own right.</p>
+    <p>I want to talk about one truth:</p>
+  </div>
+</section>
+
+<section class="chapter" id="e3">
+  <div class="chapter-head"><span class="n">3</span><h2>The Fragility of Life</h2></div>
+  <blockquote class="pull">Someone your age died today.</blockquote>
+  <div class="stack">
+    <p>I celebrated my twenty-seventh birthday a few months ago, and I sometimes think, especially when looking at earlier generations, about how they lacked technology and modern medicine, and how many people used to die young.</p>
+    <p>Child deaths were not rare; many young people died in their twenties, whether in wars or from disease, or even as children.</p>
+  </div>
+  <div class="stack">
+    <p>They never had the chance to live what we call a full human life.</p>
+    <p>And what is thought-provoking is that even today, despite all our healthcare, technology and information, we still see people dying young.</p>
+    <p>I recently saw a news story about a poor girl of 24, about two years younger than me. She was running a marathon, and shortly before reaching the finish line she collapsed and died of cardiac arrest.</p>
+  </div>
+  <div class="stack">
+    <p>I believe she had a particular health condition linked to extreme exertion, or something like that. I'm not a doctor, of course, but things like this can happen even to the young.</p>
+    <p>And that is how life ends.</p>
+    <p>Think of your consciousness, the complexity of your memories, all the neural connections inside your brain, and all the perceptions with which you form your reality.</p>
+  </div>
+  <div class="stack">
+    <p>We talk a lot about the outer world and the universe, but there is a whole universe inside your mind.</p>
+    <p>Imagine all this complexity vanishing in a single moment.</p>
+    <p>You leave life, and everything ends for you.</p>
+  </div>
+  <p>Imagine leaping forward through time, to the far stages of the universe's life. Will we reach billions of years ahead, when everything becomes dark, the stars disappear, and nothing remains but black holes?</p>
+  <div class="stack">
+    <p>I think it is important to stop for a moment and reflect on how truly fragile life is.</p>
+    <p>I always remember the ceramic cup slipping from my hand.</p>
+    <p>Think of the times you tried to catch a cup falling from your hand, and couldn't.</p>
+  </div>
+  <div class="stack">
+    <p>And I also think of the day I had to put down the dog who had been with me since childhood.</p>
+    <p>I wished I could do something to save him.</p>
+    <p>I remember the vet saying everything in his body was perfectly healthy, except his heart.</p>
+  </div>
+  <p>What could I have done?</p>
+  <div class="stack">
+    <p>Nothing.</p>
+    <p>There was nothing I could do.</p>
+    <p>These are things beyond our control, aren't they?</p>
+  </div>
+  <div class="stack">
+    <p>They are the forces of nature, the passing of time, things that come and go.</p>
+    <p>It is the cycle of life.</p>
+    <p>Sometimes I look at the little ants crawling over the soil, and think that they are as much a part of this reality as I am.</p>
+  </div>
+  <div class="stack">
+    <p>Perhaps we could get into a philosophical discussion about consciousness, and whether human life is more valuable than the lives of other creatures. But that is not our subject here.</p>
+    <p>What I mean is that feeling of empathy which makes me realize that you, I and this little ant are all here for the first time, and perhaps the last, within this cycle of life.</p>
+    <p>The little ant, the ladybird, and the other creatures we so often ignore in our lives, and may step on without noticing.</p>
+  </div>
+  <div class="stack">
+    <p>I try to make an extra effort when I see a ladybird flipped on its back, trying to crawl.</p>
+    <p>I go over, pick it up, and put it somewhere it can carry on its way.</p>
+  </div>
+</section>
+
+<section class="chapter" id="e4">
+  <div class="chapter-head"><span class="n">4</span><h2>The Bee and the Ladybird</h2></div>
+  <div class="stack">
+    <p class="lead">A few weeks ago I went out for coffee, and something strange happened that made me think about life.</p>
+    <p>I lean towards agnosticism, but I appreciate the fact that the human mind cannot grasp the grandeur of reality, or understand the odds of our existing in this way.</p>
+    <p>I was sitting in a café with an outdoor terrace. The weather felt like autumn; warm, with a slightly cool breeze.</p>
+  </div>
+  <div class="stack">
+    <p>Near the terrace there was a patch of flowers, and I saw a bee on it.</p>
+    <p>I was drinking my coffee, looked at it, and noticed that it seemed to be in its last moments.</p>
+    <p>It was weak, struggling to crawl. I don't know exactly what it was trying to do, but I felt it was nearing the end of its life.</p>
+  </div>
+  <div class="stack">
+    <p>I tried to protect it.</p>
+    <p>It was a little windy, so I tried to put some leaves around it to shelter it, but the leaves sometimes fell on top of it.</p>
+    <p>I was trying to help it, but no matter what I tried, there was nothing I could do to save it.</p>
+  </div>
+  <div class="stack">
+    <p>It was exactly like the ceramic cup slipping from my hand and my trying to use my foot to stop it breaking.</p>
+    <p>But some things simply happen.</p>
+    <p>The cup breaks, the bee dies, and we too will leave one day.</p>
+  </div>
+  <div class="stack">
+    <p>It is an uncomfortable feeling, and I still struggle with it every day.</p>
+    <p>But I think writing pieces like this may help me, and perhaps help someone who reads them, to feel a human bond that connects us.</p>
+    <p>I know there is a lot of news, a lot of conflict, and endless reasons that make us feel negative and complain about everything.</p>
+  </div>
+  <p>And I think this happens especially when we are young.</p>
+</section>
+
+<section class="chapter" id="e5">
+  <div class="chapter-head"><span class="n">5</span><h2>Grief and Loss</h2></div>
+  <div class="stack">
+    <p class="lead">I have always admired Aristotle's view in his <i>Nicomachean Ethics</i>.</p>
+    <p>For this book, in his view, was not meant for the young in particular, because they had not yet experienced the weight of life, nor come to know enough of its suffering, and of the things that form an inseparable part of its nature.</p>
+    <p>And I believe there is great beauty in suffering.</p>
+  </div>
+  <div class="stack">
+    <p>I learned that through my personal experiences of death and loss, which have unfortunately been many.</p>
+    <p>I went through very hard experiences. I think I lost seven or eight members of my family in a single year, including my dog.</p>
+    <p>And that was one of the main reasons I started my social media account.</p>
+  </div>
+  <div class="stack">
+    <p>I didn't know exactly why I did it, but somehow I wanted to express my grief, and let out the mixed emotions that were inside me.</p>
+    <p>Because my feelings were sometimes strangely changeable.</p>
+    <p>I'm sure you may have been through something similar if you have experienced loss in your life.</p>
+  </div>
+  <div class="stack">
+    <p>It is strange, for example, when someone comes and says to you: "I'm sorry for your loss."</p>
+    <p>And sometimes I felt irritated hearing that phrase.</p>
+    <p>Even though the person is only trying to comfort you and connect with you as a human being.</p>
+  </div>
+  <div class="stack">
+    <p>But I was irritated, because I felt their words were reminding me that what had happened was real, while I was refusing to accept it.</p>
+    <p>I would say to myself: no, this isn't happening. They haven't gone. They're still here.</p>
+    <p>It's strange how our minds sometimes work, and how irrational thoughts can arise in us.</p>
+  </div>
+  <div class="stack">
+    <p>And I love the way Epictetus talks about irrational passions, and warns us against them, because they can corrupt the soul and affect our ability to make sound judgements.</p>
+    <p>And rationality, the capacity for logical thought, is what distinguishes the human being.</p>
+    <p>For Aristotle holds that we are rational and social beings, and that reason is the unique capacity that sets us apart.</p>
+  </div>
+</section>
+
+<section class="chapter" id="e6">
+  <div class="chapter-head"><span class="n">6</span><h2>Happiness and What We Cannot Control</h2></div>
+  <div class="stack">
+    <p class="lead">Epictetus, for his part, is deeply concerned with the idea of happiness.</p>
+    <p>He holds that the outcomes we reach in life should not be directly tied to our happiness.</p>
+    <p>He is not saying we shouldn't care about our health because we will get sick in the end.</p>
+  </div>
+  <div class="stack">
+    <p>Rather, he says we can of course influence our health, by exercising and eating well, but we shouldn't tie our happiness to an outcome we don't fully control.</p>
+    <p>For example, if you get sick, that doesn't necessarily mean you have become an unhappy person, or that your life is no longer happy.</p>
+    <p>That is exactly what he was trying to show us.</p>
+  </div>
+  <div class="stack">
+    <p>For we will all get sick one day, whether it's just an ordinary flu or, God forbid, a more serious illness.</p>
+    <p>And I truly wish everyone reading these words a beautiful and healthy life.</p>
+    <p>I wish us all a life full of goodness and flourishing, during this short time we spend here.</p>
+  </div>
+  <p>But the belief that having a lot of money means my life is happy, or that being in excellent health means I'm happy, or that being famous and well known means I'm happy, is a deeply problematic belief from the point of view of Epictetus and many of the Stoic philosophers.</p>
+  <div class="stack">
+    <p>Because all these things lie largely outside our control.</p>
+    <p>There is nothing among them you can guarantee one hundred per cent.</p>
+    <p>Yes, you can influence them, but the final outcome is not guaranteed.</p>
+  </div>
+  <div class="stack">
+    <p>It's like an exam.</p>
+    <p>You can study a lot, read everything about the subject, and put in great effort, but that doesn't guarantee one hundred per cent that you'll get a good result in the midterm or the final.</p>
+    <p>For there are many external factors that may affect the outcome.</p>
+  </div>
+  <div class="stack">
+    <p>Perhaps you didn't sleep well the night before, or perhaps the professor or the university board decided to change the questions at the last minute.</p>
+    <p>There are many possibilities, and all of them are beyond your control.</p>
+    <p>And I want us to connect all this back to the main idea:</p>
+  </div>
+  <blockquote class="pull">Someone your age died today.</blockquote>
+  <div class="stack">
+    <p>Someone who had a whole life ahead of them.</p>
+    <p>They had plans, goals, fears and worries; perhaps they had thoughts like yours, and perhaps opinions completely different from yours.</p>
+  </div>
+  <div class="stack">
+    <p>And perhaps if the two of you sat in one room, you would get into a heated argument and disagree about some things.</p>
+    <p>But in the end, we are human, and we are here once, and this experience may never be repeated.</p>
+    <p>I want you to reflect on this truth through the image of the ceramic cup.</p>
+  </div>
+  <div class="stack">
+    <p>Nothing is guaranteed to us in this life.</p>
+    <p>I wish good health for me and for you, but we can only influence it; the final outcome is not in our hands.</p>
+  </div>
+</section>
+
+<section class="chapter" id="e7">
+  <div class="chapter-head"><span class="n">7</span><h2>The Ship and the Call to Depart</h2></div>
+  <div class="stack">
+    <p class="lead">There is also a passage in Epictetus where he speaks of an example I don't remember word for word.</p>
+    <p>I marked the pages of the book and everything, studied these ideas in a course, and read the book several times, but I don't remember the passage exactly.</p>
+    <p>He speaks of an example involving a sea voyage.</p>
+  </div>
+  <div class="stack">
+    <p>Imagine you went on a trip aboard a cruise ship.</p>
+    <p>During the voyage, the ship stops at different places to visit. When it reaches a certain place, the passengers go ashore to explore it, but there is a set time by which they must return to the ship, or it will leave without them.</p>
+    <p>Epictetus uses this example to show us that we must know when it is time to leave.</p>
+  </div>
+  <div class="stack">
+    <p>For you cannot determine the length of your life.</p>
+    <p>You can do your very best, live in the best way possible, and shape your life as much as you can.</p>
+    <p>But when the time to leave comes, the decision will not be yours.</p>
+  </div>
+  <div class="stack">
+    <p>When the boat calls you, you must go.</p>
+    <p>And that is what I understand from the image of the ceramic cup, although Epictetus takes some of his ideas to a more extreme level that I don't agree with.</p>
+    <p>He says, for example, that when you hold your child in your arms, you must realize that he will die one day, and not become too attached to him, and other ideas of this kind.</p>
+  </div>
+  <div class="stack">
+    <p>I don't agree with him on that.</p>
+    <p>But I do agree with the core idea he puts forward in the book.</p>
+  </div>
+  <div class="stack">
+    <p>He says: keep death close to you.</p>
+    <p>Keep death present in your mind.</p>
+    <p>If you read Marcus Aurelius and other Stoic philosophers, you'll find they speak of very similar ideas.</p>
+    <p>Keep death close to you when you wake up in the morning.</p>
+  </div>
+  <div class="stack">
+    <p>These philosophers were not fascinated by death; quite the opposite.</p>
+    <p>Human beings by nature don't want to die, and it is natural to want to live as long as possible.</p>
+    <p>But they constantly called to mind the reality of death, so as to realize how fragile life is.</p>
+  </div>
+  <div class="stack">
+    <p>And so as to remember to stay close to their loved ones, to love them truly, to embrace them, and to give them all the love they could.</p>
+    <p>Because a day will come when they are no longer there.</p>
+    <p>You won't have lunch with them, you won't drink your morning coffee with them, and you won't be able to go out walking with them in the park.</p>
+  </div>
+  <div class="stack">
+    <p>These simple things we treat as if they will be there forever.</p>
+    <p>For as humans we tend to believe things will always stay as they are, even though life constantly reminds us otherwise.</p>
+    <p>Life is changing, flowing, never ceasing to transform.</p>
+  </div>
+  <div class="stack">
+    <p>And if you read Taoist philosophy, or some Eastern philosophies, like the ideas of Lao Tzu, you'll find that the actions we take in our lives shouldn't always be for the sake of our personal interests.</p>
+    <p>Take the ocean as an example.</p>
+    <p>The waves strike a rocky cliff, and over time the cliff erodes and collapses.</p>
+  </div>
+  <div class="stack">
+    <p>But the waves' aim was not to destroy the cliff.</p>
+    <p>The wave was simply acting according to its nature.</p>
+  </div>
+</section>
+
+<section class="chapter" id="e8">
+  <div class="chapter-head"><span class="n">8</span><h2>Death Is Not an Evil</h2></div>
+  <div class="stack">
+    <p class="lead">In the same way, death is not an evil in itself.</p>
+    <p>For we do not know the truth of what death is.</p>
+    <p>Even Socrates did not know.</p>
+    <p>And that is why he did not fear death the way others fear it.</p>
+  </div>
+  <p>He did not know what would happen after it, but he knew one thing: that injustice, and neglecting the soul and failing to care for it in this life, are bad things that we can recognize and understand.</p>
+</section>
+
+<section class="chapter" id="e9">
+  <div class="chapter-head"><span class="n">9</span><h2>Stay Close to Your Loved Ones</h2></div>
+  <p class="lead">I think I want to end the essay with this idea:</p>
+  <blockquote class="pull">Stay close to your loved ones.</blockquote>
+  <div class="stack">
+    <p>I wish you good health, and I wish you a wonderful life.</p>
+    <p>And I want you to keep death present in your minds, not so that it spoils your day or makes you depressed, but so that you use this truth to cultivate a very deep sense of empathy.</p>
+  </div>
+  <div class="stack">
+    <p>Some may disagree with me, and say that people will take advantage of your kindness, or walk all over you, or other such views.</p>
+    <p>But I know there is a very beautiful feeling when you look at a small creature like a ladybird, and realize that you have the power to hurt it.</p>
+    <p>You could step on it, or let it die without caring.</p>
+  </div>
+  <div class="stack">
+    <p>But instead, you choose to help it.</p>
+    <p>Simply because you want to help it.</p>
+    <p>You carry it on your little finger, go down the stairs, open the door, and look for a safe place for it in the garden, then let it go free to continue on its way.</p>
+  </div>
+  <div class="stack">
+    <p>You don't know what will happen to it after that.</p>
+    <p>Perhaps someone else will come along and step on it.</p>
+    <p>But in that brief moment, even though you cannot control the outcome, you can make a conscious decision to help a creature in need of help.</p>
+  </div>
+  <div class="stack">
+    <p>You could have ignored it, or even harmed it, but you chose to help it.</p>
+    <p>Simply because you wanted to.</p>
+    <p>Because you wanted to give it a chance to go on living.</p>
+  </div>
+  <div class="stack">
+    <p>People may have different philosophies, but I think this is a beautiful philosophy.</p>
+    <p>And I truly believe in it.</p>
+    <p>And I believe that if more people believed in this idea, the world would become a better place.</p>
+  </div>
+  <div class="final-mark" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/><circle class="dot" cx="22" cy="22" r="2.5"/></svg></div>
+</section>
+</main>
+</div>
+
+<footer data-en="The Fragility of Life — Alaa Abed">هشاشة الحياة — علاء عابد</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg></button>
+<script>
+/* Reading progress bar + back-to-top button */
+(function () {
+  var bar = document.getElementById('progressBar');
+  var toTop = document.getElementById('toTop');
+  var ticking = false;
+
+  function update() {
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    var ratio = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    bar.style.width = (ratio * 100) + '%';
+    toTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.9);
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  update();
+})();
+
+/* Text size: small/large "ع" buttons, remembered on this device */
+(function () {
+  var steps = [0.85, 0.92, 1, 1.1, 1.2, 1.32, 1.45];
+  var KEY = 'reading-text-scale';
+  var root = document.documentElement;
+  var smaller = document.getElementById('textSmaller');
+  var larger = document.getElementById('textLarger');
+  var level = document.getElementById('textLevel');
+  var hideTimer;
+  var i = 2;
+
+  try {
+    var saved = parseInt(localStorage.getItem(KEY), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < steps.length) i = saved;
+  } catch (e) {}
+
+  function apply(showLevel) {
+    // keep the reader on the same passage while the text reflows
+    var anchor = window.scrollY / Math.max(document.documentElement.scrollHeight, 1);
+    root.style.setProperty('--scale', steps[i]);
+    window.scrollTo(0, anchor * document.documentElement.scrollHeight);
+
+    smaller.disabled = i === 0;
+    larger.disabled = i === steps.length - 1;
+    try { localStorage.setItem(KEY, i); } catch (e) {}
+
+    if (showLevel) {
+      level.textContent = Math.round(steps[i] * 100) + '٪';
+      level.classList.add('on');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { level.classList.remove('on'); }, 1200);
+    }
+  }
+
+  smaller.addEventListener('click', function () { if (i > 0) { i--; apply(true); } });
+  larger.addEventListener('click', function () { if (i < steps.length - 1) { i++; apply(true); } });
+
+  apply(false);
+})();
+
+/* Bold / regular toggle, remembered on this device */
+(function () {
+  var KEY = 'reading-text-bold';
+  var btn = document.getElementById('textBold');
+  var root = document.documentElement;
+
+  function set(on) {
+    root.classList.toggle('is-bold', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'نص عادي' : 'نص عريض');
+    try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+  }
+
+  var start = false;
+  try { start = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  set(start);
+
+  btn.addEventListener('click', function () {
+    set(!root.classList.contains('is-bold'));
+  });
+})();
+
+/* Arabic / English toggle, keeps your place, remembered on this device */
+(function () {
+  var KEY = 'reading-lang';
+  var root = document.documentElement;
+  var ar = document.getElementById('langAr');
+  var en = document.getElementById('langEn');
+  var btn = document.getElementById('langToggle');
+
+  function current() { return en.hidden ? ar : en; }
+
+  // which chapter is on screen, and how far into it
+  function position() {
+    var secs = current().querySelectorAll('section.chapter');
+    var y = window.scrollY + window.innerHeight * 0.3;
+    for (var i = secs.length - 1; i >= 0; i--) {
+      var top = secs[i].getBoundingClientRect().top + window.scrollY;
+      if (y >= top) return { i: i, f: (y - top) / Math.max(secs[i].offsetHeight, 1) };
+    }
+    return null;
+  }
+
+  function set(lang, keepPlace) {
+    var pos = keepPlace ? position() : null;
+    var isEn = lang === 'en';
+    ar.hidden = isEn;
+    en.hidden = !isEn;
+    root.lang = lang;
+    root.dir = isEn ? 'ltr' : 'rtl';
+    btn.innerHTML = isEn ? '<span class="ar-glyph">ع</span>' : 'EN';
+    btn.setAttribute('aria-label', isEn ? 'النسخة العربية' : 'English version');
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+    document.querySelectorAll('[data-en]').forEach(function (el) { if (el.dataset.ar === undefined) el.dataset.ar = el.textContent; el.textContent = isEn ? el.dataset.en : el.dataset.ar; });
+
+    if (pos) {
+      var target = current().querySelectorAll('section.chapter')[pos.i];
+      var top = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top + pos.f * target.offsetHeight - window.innerHeight * 0.3, behavior: 'instant' });
+    } else if (keepPlace) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    window.dispatchEvent(new Event('scroll'));
+  }
+
+  var start = 'ar';
+  try { if (localStorage.getItem(KEY) === 'en') start = 'en'; } catch (e) {}
+  set(start, false);
+
+  btn.addEventListener('click', function () {
+    set(en.hidden ? 'en' : 'ar', true);
+  });
+})();
+</script>
+</body>
+</html>

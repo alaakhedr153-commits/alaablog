@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>كيف نتعامل مع الخوف - أوشو</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Literata:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans+Arabic:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   1. TOKENS — edit colors, fonts and sizes here
+   ========================================================= */
+:root {
+  --paper:      #F6F2EA;   /* warm off-white page */
+  --paper-deep: #EEE8DD;   /* highlighted paragraph background */
+  --ink:        #2B2825;   /* body text */
+  --ink-soft:   #5E5750;   /* secondary text */
+  --muted:      #9A9083;   /* labels, numerals */
+  --line:       #D8CFC1;   /* hairlines and rules */
+  --accent:     #8C7B63;   /* quiet bronze for small marks */
+
+  --f-title: "Amiri", "Noto Naskh Arabic", "Times New Roman", serif;
+  --f-body:  "Noto Naskh Arabic", "Amiri", "Geeza Pro", "Arial", serif;
+  --f-ui:    "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", sans-serif;
+
+  --measure: 720px;
+  --body-size: clamp(1.125rem, 1rem + 0.45vw, 1.3rem);
+  --body-lh: 2.15;
+  --scale: 1;              /* changed by the text-size control */
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--paper-deep); color: var(--ink); }
+
+a { color: inherit; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+/* =========================================================
+   2. READING PROGRESS + BACK TO TOP
+   ========================================================= */
+.progress {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  height: calc(2px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  pointer-events: none;
+}
+.progress span {
+  display: block;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  margin-inline-start: 0; /* grows from the right in RTL */
+}
+
+.to-top {
+  position: fixed;
+  left: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  display: grid; place-items: center;
+  cursor: pointer;
+  opacity: 0; visibility: hidden;
+  transition: opacity .4s ease, visibility .4s ease, border-color .3s ease, color .3s ease;
+  z-index: 40;
+}
+.to-top.show { opacity: 1; visibility: visible; }
+.to-top:hover { border-color: var(--accent); color: var(--ink); }
+.to-top svg { width: 16px; height: 16px; }
+
+/* ---- Reading controls: text size + bold ---- */
+.text-size {
+  position: fixed;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+  left: 1.25rem;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  padding: 2px;
+}
+.text-size button {
+  width: 42px; height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  line-height: 1;
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background-color .25s ease, color .25s ease;
+}
+.text-size button:hover:not(:disabled) { background: var(--paper-deep); color: var(--ink); }
+.text-size button:disabled { color: var(--line); cursor: default; }
+.text-size svg { width: 24px; height: 24px; display: block; }
+.text-size button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.text-size button[aria-pressed="true"]:hover { background: var(--ink); color: var(--paper); }
+.text-size .sep { width: 1px; height: 18px; background: var(--line); }
+.text-size .level {
+  position: absolute;
+  top: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .75rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.text-size .level.on { opacity: 1; }
+
+/* =========================================================
+   3. OPENING
+   ========================================================= */
+.opening {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.emblem {
+  width: 120px; height: 120px;
+  margin-bottom: 3.5rem;
+  color: var(--ink);
+}
+.emblem circle.ring { stroke: var(--line); }
+.emblem .ring { stroke: var(--line); }
+
+.emblem circle.dot  { fill: var(--accent); }
+
+.opening h1 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 1.6rem + 4.5vw, 4.6rem);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0;
+}
+.opening .subtitle {
+  font-family: var(--f-title);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+  margin: 1.25rem 0 0;
+}
+.opening .rule {
+  width: 48px; height: 1px;
+  background: var(--line);
+  margin: 3rem auto 2.25rem;
+}
+
+.contents {
+  list-style: none;
+  padding: 0; margin: 0;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  line-height: 2.2;
+  color: var(--ink-soft);
+  columns: 2;
+  column-gap: 3rem;
+  text-align: right;
+}
+.contents a {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s ease, color .3s ease;
+}
+.contents a:hover { color: var(--ink); border-color: var(--line); }
+.contents .n { color: var(--muted); margin-inline-end: .6rem; }
+
+.begin {
+  margin-top: 3rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .9rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex; flex-direction: column; align-items: center; gap: .6rem;
+  transition: color .3s ease;
+}
+.begin:hover { color: var(--ink); }
+.begin i { display: block; width: 1px; height: 36px; background: var(--line); }
+
+/* =========================================================
+   4. TEXT BODY
+   ========================================================= */
+main {
+  font-size: calc(var(--body-size) * var(--scale));
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+}
+
+section.chapter { padding-top: 6rem; }
+
+.chapter-head {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.chapter-head .n {
+  display: block;
+  font-family: var(--f-title);
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: .5rem;
+}
+.chapter-head h2 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: calc(clamp(1.7rem, 1.3rem + 1.4vw, 2.3rem) * var(--scale));
+  line-height: 1.5;
+  margin: 0;
+}
+.chapter-head::after {
+  content: "";
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+  margin: 1.5rem auto 0;
+}
+
+p { margin: 0 0 1.6em; }
+
+/* the very first line of the text */
+.lead {
+  font-family: var(--f-title);
+  font-size: 1.45em;
+  line-height: 1.9;
+  margin-bottom: 1.2em;
+}
+
+/* stacked short lines kept in sequence */
+.stack p { margin-bottom: .35em; }
+.stack { margin: 0 0 1.6em; }
+
+/* large centered pull quote — the text itself, in place */
+.pull {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.55rem, 1.2rem + 1.4vw, 2.1rem) * var(--scale));
+  line-height: 1.75;
+  text-align: center;
+  margin: 3.5rem auto;
+  max-width: 34ch;
+  color: var(--ink);
+}
+.pull::before, .pull::after {
+  content: "";
+  display: block;
+  width: 32px; height: 1px;
+  background: var(--line);
+  margin: 0 auto 1.5rem;
+}
+.pull::after { margin: 1.5rem auto 0; }
+
+/* soft highlighted paragraph */
+.mark {
+  background: var(--paper-deep);
+  padding: 1.4rem 1.6rem;
+  border-radius: 2px;
+  margin: 2.5rem 0;
+  font-size: 1.06em;
+}
+
+/* slightly larger single line with breathing room */
+.breath {
+  font-size: 1.15em;
+  font-weight: 500;
+  margin: 2.5rem 0;
+}
+
+/* an inner voice — the separate self speaking */
+.voice {
+  border-inline-start: 1px solid var(--line);
+  padding-inline-start: 1.5rem;
+  margin: 2.5rem 0;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: 1.08em;
+}
+.voice p { margin-bottom: .35em; }
+
+/* nature's imagined speech */
+.speech {
+  margin: 2rem 0 2.5rem;
+  padding: 0 1.5rem;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* two lines placed as a pair */
+.pair {
+  margin: 3.5rem 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.3rem, 1.1rem + .8vw, 1.65rem) * var(--scale));
+  line-height: 1.8;
+}
+.pair p { margin: 0; }
+.pair p + p { color: var(--ink-soft); margin-top: .8rem; }
+
+/* the litany of small things */
+.litany {
+  list-style: none;
+  margin: 2.5rem 0;
+  padding: 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  line-height: 2.3;
+}
+.litany li { color: var(--ink-soft); transition: color .3s ease; }
+.litany li:hover { color: var(--ink); }
+
+/* the final line */
+.final {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.8rem, 1.3rem + 2vw, 2.6rem) * var(--scale));
+  line-height: 1.7;
+  text-align: center;
+  margin: 5rem auto 1rem;
+  max-width: 22ch;
+}
+.final-mark {
+  display: flex; justify-content: center; margin: 2.5rem 0 0;
+}
+.final-mark svg { width: 44px; height: 44px; }
+.final-mark .ring { stroke: var(--line); }
+.final-mark .dot { fill: var(--accent); }
+
+/* closing words from the speaker */
+.afterword {
+  margin-top: 7rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  font-size: .9em;
+  color: var(--ink-soft);
+  line-height: 2;
+}
+.afterword .label {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.afterword p { margin-bottom: 1em; }
+.afterword .farewell {
+  font-family: var(--f-title);
+  font-size: 1.15em;
+  color: var(--ink);
+  margin-top: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 3rem 1.5rem 4rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* =========================================================
+   4b. BOLD READING MODE
+   ========================================================= */
+.is-bold main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold main :is(.lead, .pull, .final, .voice, .speech, .pair, .litany, .farewell, .sanskrit) { font-weight: 700; }
+
+/* =========================================================
+   4d. PAGE-SPECIFIC ELEMENTS
+   ========================================================= */
+.emblem .wave { stroke: var(--ink-soft); }
+.opening .latin-title {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 1.4rem + 3.8vw, 4rem);
+  line-height: 1.25;
+  direction: ltr;
+}
+.opening .ar-title {
+  font-family: var(--f-title);
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  color: var(--ink-soft);
+  margin: 1.25rem 0 0;
+}
+.opening .byline {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  color: var(--muted);
+  margin: .9rem 0 0;
+  letter-spacing: .04em;
+}
+
+/* the ♪ pauses of the original talk */
+.note {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8em;
+  line-height: 1;
+  margin: .4em 0 1.6em;
+  user-select: none;
+}
+
+/* Sanskrit phrase with its translation */
+.sanskrit { text-align: center; margin: 2.5rem 0; }
+.sanskrit p { margin: 0; }
+.sanskrit p:first-child {
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.2rem);
+  letter-spacing: .02em;
+}
+.sanskrit p + p { color: var(--ink-soft); font-family: var(--f-title); font-size: 1.2em; margin-top: .4rem; }
+
+.speech p { margin: 0 0 .3em; }
+.stack.indent { padding-inline-start: 1.25rem; border-inline-start: 1px solid var(--line); }
+.mark.stack-in p { margin: 0 0 .4em; }
+.mark.stack-in p:last-child { margin-bottom: 0; }
+
+/* =========================================================
+   4e. ENGLISH VERSION
+   ========================================================= */
+.lang[hidden] { display: none !important; }
+.lang-en {
+  --f-title: "Cormorant Garamond", "Garamond", "Georgia", serif;
+  --f-body:  "Literata", "Georgia", "Times New Roman", serif;
+  font-family: var(--f-body);
+  line-height: 1.8;
+  hyphens: auto;
+}
+.lang-en .chapter-head .n { font-size: 1rem; }
+.lang-en .chapter-head h2 { font-weight: 600; }
+.lang-en .opening .latin-title { font-weight: 600; }
+.lang-en .opening .ar-title { font-style: italic; }
+.lang-en .lead { font-size: 1.35em; }
+.lang-en .pull,
+.lang-en .final { font-weight: 600; line-height: 1.5; }
+.lang-en .pair,
+.lang-en .litany,
+.lang-en .speech,
+.lang-en .voice { font-size: 1.15em; }
+.contents { text-align: start; }
+.is-bold .lang-en main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold .lang-en main :is(.pull, .pair, .voice, .speech, .litany, .sanskrit) { font-weight: 700; }
+
+/* language toggle button inside the reading controls */
+.text-size .lang-btn {
+  font-family: var(--f-ui);
+  font-size: .8rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+.text-size .lang-btn .ar-glyph { font-family: "Amiri", serif; font-size: 1.25rem; line-height: 1; }
+
+/* =========================================================
+   4f. CONVERSATION
+   ========================================================= */
+/* the interviewer's turns */
+.q {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: 1.4rem;
+  margin: 2rem 0;
+  color: var(--ink-soft);
+}
+.q p { margin-bottom: .9em; }
+.q p:last-child { margin-bottom: 0; }
+.q .q-strong { color: var(--ink); font-weight: 500; }
+/* short replies: "yes", "right", "mhm" */
+.aside {
+  color: var(--muted);
+  font-size: .9em;
+  margin: -.4em 0 1.4em;
+}
+.small { font-size: .88em; color: var(--ink-soft); }
+
+/* speaker names */
+.who {
+  font-family: var(--f-ui);
+  font-weight: 400;
+  font-size: .78em;
+  color: var(--accent);
+  margin-inline-end: .45em;
+  font-style: normal;
+}
+
+/* speaker line above a turn */
+.speaker {
+  font-family: var(--f-ui);
+  font-size: .8em;
+  color: var(--accent);
+  margin: 2rem 0 .4em;
+  line-height: 1.4;
+}
+.q .speaker { margin-top: 0; }
+
+/* emphasis carried over from the source text */
+main strong { font-weight: 600; }
+.lang-en main strong { font-weight: 600; }
+.pull strong, .final strong { font-weight: inherit; }
+.byline a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .3s ease, color .3s ease; }
+.byline a:hover { color: var(--ink); border-color: var(--accent); }
+.afterword .speaker { margin-top: 0; }
+
+/* guided meditation passage */
+.guided {
+  margin: 2.5rem 0;
+  padding: 1.8rem 1.6rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.guided p { margin-bottom: 1.1em; }
+.guided p:last-child { margin-bottom: 0; }
+.unclear { color: var(--muted); font-size: .85em; }
+
+.lang-ar .byline:not([dir="ltr"]) { letter-spacing: 0; font-family: var(--f-title); font-size: 1.05rem; }
+
+/* closing echo of key lines */
+.echo { text-align: center; font-family: var(--f-title); font-size: 1.2em; line-height: 2; color: var(--ink-soft); margin: 2rem 0; }
+.echo p { margin: 0 0 .5em; }
+
+/* sponsor segment kept in place, set apart */
+.ad {
+  margin: 5rem 0 0;
+  padding: 1.6rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: .82em;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.ad .label { font-family: var(--f-ui); font-size: .85rem; margin-bottom: 1rem; }
+.ad p { margin-bottom: .8em; }
+
+/* =========================================================
+   5. RESPONSIVE
+   ========================================================= */
+@media (max-width: 640px) {
+  .opening { padding: 5rem 1.25rem 3rem; }
+  .emblem { width: 88px; height: 88px; margin-bottom: 2.5rem; }
+  .opening .rule { margin: 2.25rem auto 1.75rem; }
+  .contents { columns: 1; text-align: center; }
+
+  main { padding: 0 1.25rem 4rem; }
+  section.chapter { padding-top: 4rem; }
+  .chapter-head { margin-bottom: 2.5rem; }
+
+  .pull { margin: 2.5rem auto; }
+  .mark { padding: 1.1rem 1.15rem; margin: 2rem -.25rem; }
+  .voice { padding-inline-start: 1.1rem; }
+  .speech { padding: 0 .5rem; }
+  .pair, .litany { margin: 2.5rem 0; }
+  .final { margin-top: 3.5rem; }
+  .afterword { margin-top: 5rem; }
+
+  .to-top { left: 1rem; width: 40px; height: 40px; }
+  .text-size { left: 1rem; }
+  .text-size button { width: 40px; height: 36px; }
+}
+
+@media print {
+  .text-size,
+  .progress, .to-top, .begin, .contents { display: none; }
+  body { background: #fff; }
+}
+.guided{border-inline-start:2px solid var(--line);padding:1.1em 1.4em;margin:2.2em 0;color:var(--ink-soft);background:var(--paper-deep);border-radius:4px;}
+.subhead{font-family:var(--f-ui);font-size:.92em;font-weight:600;color:var(--accent);letter-spacing:.02em;margin:3.2rem 0 1.1rem;}
+</style>
+<style>.home-link{position:fixed;top:calc(1rem + env(safe-area-inset-top,0px));right:1.25rem;z-index:45;font-family:var(--f-ui);font-weight:300;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:.45rem 1rem;background:var(--paper);transition:border-color .3s,color .3s}.home-link:hover{color:var(--ink);border-color:var(--accent)}@media print{.home-link{display:none}}</style>
+</head>
+
+<body>
+
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+<a class="home-link" href="../index.html" data-en="← Home">→ الرئيسية</a>
+
+<div class="text-size" role="group" aria-label="أدوات القراءة">
+  <!-- smaller text: small letter + minus -->
+  <button type="button" id="textSmaller" aria-label="تصغير النص" title="تصغير النص">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 18 8.5 7 13 18M5.6 14h5.8"/>
+      <path d="M16 12h5"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <!-- larger text: big letter + plus -->
+  <button type="button" id="textLarger" aria-label="تكبير النص" title="تكبير النص">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M2.5 20 8.5 4l6 16M4.7 14.5h7.6"/>
+      <path d="M16.5 8.5h5M19 6v5"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <!-- bold / regular toggle: heavy letter B -->
+  <button type="button" id="textBold" aria-pressed="false" aria-label="نص عريض" title="نص عريض / عادي">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 4.5h6a3.6 3.6 0 0 1 0 7.2H7zM7 11.7h7a3.9 3.9 0 0 1 0 7.8H7z"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <!-- language: shows the language you will switch to -->
+  <button type="button" id="langToggle" class="lang-btn" aria-label="English version" title="English / العربية">EN</button>
+  <span class="level" id="textLevel" aria-live="polite"></span>
+</div>
+
+<div class="lang lang-ar" id="langAr" lang="ar" dir="rtl">
+<header class="opening" id="top">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <path class="ring" d="M40 40 L40 84 M80 40 L80 84 M53 40 L53 84 M67 40 L67 84" fill="none" stroke-width="1" opacity=".3"/>
+    <path class="ring" d="M60 66 C50 54, 36 52, 30 46 M60 66 C70 54, 84 52, 90 46" fill="none" stroke-width="1.1" opacity=".75"/>
+    <circle class="dot" cx="60" cy="66" r="3"/>
+  </svg>
+
+  <h1 class="latin-title">كيف نتعامل مع الخوف؟</h1>
+  <p class="ar-title">صمتٌ مشترك في الكلمات — عن التعلّق، والصراصير، ونهاية العالم، وخوف العقل من أن تصبح واعيًا</p>
+  <p class="byline">أوشو</p>
+
+  <div class="rule"></div>
+
+  <nav aria-label="الفهرس">
+    <ol class="contents">
+      <li><a href="#c1"><span class="n">١</span>السؤال</a></li>
+      <li><a href="#c2"><span class="n">٢</span>الخوف ابن التعلّق</a></li>
+      <li><a href="#c3"><span class="n">٣</span>الإنسان والصراصير</a></li>
+      <li><a href="#c4"><span class="n">٤</span>ماذا لو انتهى العالم؟</a></li>
+      <li><a href="#c5"><span class="n">٥</span>خوف العقل الأساسي</a></li>
+      <li><a href="#c6"><span class="n">٦</span>العقل سجن</a></li>
+    </ol>
+  </nav>
+
+  <a class="begin" href="#c1">ابدأ القراءة<i></i></a>
+</header>
+
+<main>
+
+<section class="chapter" id="c1">
+  <div class="chapter-head"><span class="n">١</span><h2>السؤال</h2></div>
+  <p class="lead">كثيرون يصفون الخوف بكلمات تشبه هذه:</p>
+  <div class="guided">
+    <p>إنه يؤثر فيَّ بطرق مختلفة...</p>
+    <p>من شعور غامض بعدم الارتياح، أو عقدة في المعدة، إلى حالة من الهلع الدوار، وكأن العالم على وشك الانتهاء.</p>
+    <p>من أين يأتي؟</p>
+    <p>وإلى أين يذهب؟</p>
+  </div>
+</section>
+
+<section class="chapter" id="c2">
+  <div class="chapter-head"><span class="n">٢</span><h2>الخوف ابن التعلّق</h2></div>
+  <p class="lead">كل مخاوفك هي نتاج ثانوي <strong>للتعلّق والتماهي</strong>.<br>أنت تحب امرأة، ومع الحب، وفي الحزمة نفسها، يأتي الخوف:<br>قد تتركك.<br>لقد تركت شخصًا آخر من قبل وجاءت إليك.<br>هناك سابقة.<br>وربما تفعل الشيء نفسه معك.</p>
+  <p>وهناك الخوف.<br>تشعر بعقد في معدتك.<br>لقد أصبحت متعلقًا بها أكثر مما ينبغي.<br>أنت غير قادر على إدراك حقيقة بسيطة:<br>لقد جئت إلى هذا العالم وحيدًا.</p>
+  <p>وكنت موجودًا هنا بالأمس أيضًا، من دون هذه المرأة، وكنت بخير تمامًا، من دون أي عقدة في معدتك.</p>
+  <p>وغدًا، إذا رحلت هذه المرأة...<br>فما الحاجة إلى هذه العقدة؟<br>أنت تعرف كيف تكون من دونها.<br>وستكون قادرًا على أن تكون من دونها.<br>الخوف من أن الأشياء قد تتغير غدًا...<br>قد يموت شخص ما.</p>
+  <p>قد تفلس.<br>قد تُسلب منك وظيفتك.<br>هناك ألف شيء وشيء يمكن أن يتغير.<br>وأنت مثقل بالمخاوف، مخاوف لا تنتهي.</p>
+  <p>ومع ذلك، لا أساس حقيقيًا لأي منها؛ لأنك بالأمس أيضًا كنت ممتلئًا بكل هذه المخاوف، من دون داعٍ.</p>
+  <p>ربما تغيرت الأشياء.<br>لكنّك ما زلت حيًا.</p>
+</section>
+
+<section class="chapter" id="c3">
+  <div class="chapter-head"><span class="n">٣</span><h2>الإنسان والصراصير</h2></div>
+  <p class="lead">والإنسان يمتلك قدرة هائلة على التكيف مع أي وضع.<br>يقولون إن الإنسان والصراصير فقط يمتلكان هذه القدرة الهائلة على التكيف.<br>ولهذا، أينما وجدت الإنسان، ستجد الصراصير.<br>وأينما وجدت الصراصير، ستجد الإنسان.<br>إنهما يأتيان معًا.<br>بينهما تشابه.</p>
+  <p>حتى في أماكن بعيدة مثل القطب الشمالي أو القطب الجنوبي...</p>
+  <p>عندما سافر الإنسان إلى تلك الأماكن، اكتشف فجأة أنه قد أحضر معه الصراصير.</p>
+  <p>وكانت الصراصير في صحة جيدة تمامًا، وتعيش وتتكاثر.</p>
+  <p>إذا نظرت حول الأرض فحسب، سترى أن الإنسان يعيش في آلاف المناخات المختلفة، وفي ظروف جغرافية مختلفة، وأوضاع سياسية مختلفة، وأوضاع اجتماعية مختلفة، وأوضاع دينية مختلفة...</p>
+  <p>ومع ذلك، ينجح في العيش.<br>وقد عاش لقرون...<br>الأشياء تستمر في التغير.<br>وهو يستمر في التكيف معها.</p>
+  <blockquote class="pull">لا يوجد ما يستحق الخوف.</blockquote>
+</section>
+
+<section class="chapter" id="c4">
+  <div class="chapter-head"><span class="n">٤</span><h2>ماذا لو انتهى العالم؟</h2></div>
+  <p class="lead">حتى لو انتهى العالم، فما المشكلة؟<br>ستنتهي معه أنت أيضًا.<br>هل تظن أنك ستقف وحدك على جزيرة، بينما ينتهي العالم كله ويتركك وحيدًا؟<br>لا تقلق.<br>على الأقل سيكون معك بضعة صراصير!<br>ما المشكلة إذا انتهى العالم؟</p>
+  <p>لقد سُئلت هذا السؤال مرات كثيرة.<br>لكن ما المشكلة؟<br>إذا انتهى، فقد انتهى.<br>لا توجد مشكلة في ذلك، لأننا لن نكون هنا.<br>سننتهي معه.<br>ولن يكون هناك أحد ليقلق بشأن الأمر...</p>
+  <p>وسيكون ذلك في الحقيقة <strong>أعظم تحرر من الخوف.</strong><br>انتهاء العالم يعني انتهاء كل مشكلة.<br>انتهاء كل اضطراب.<br>انتهاء كل عقدة في معدتك.<br>أنا لا أرى المشكلة.<br>لكنني أعرف أن الجميع ممتلئون بالخوف.</p>
+  <p>ومع ذلك، فإن السؤال نفسه يعود مرة أخرى:</p>
+</section>
+
+<section class="chapter" id="c5">
+  <div class="chapter-head"><span class="n">٥</span><h2>خوف العقل الأساسي</h2></div>
+  <blockquote class="pull">الخوف جزء من العقل.</blockquote>
+  <p>العقل جبان.<br>وعليه أن يكون جبانًا، لأنه لا يمتلك جوهرًا حقيقيًا.<br>إنه فارغ وأجوف.<br>ولذلك فهو يخاف من كل شيء.<br>وفي الأساس، يخاف العقل من شيء واحد:</p>
+  <blockquote class="pull">أن تصبح واعيًا يومًا ما.</blockquote>
+  <p>ذلك سيكون فعلًا نهاية العالم!<br>ليس نهاية العالم بالمعنى الحرفي...<br>بل أن تصبح أنت واعيًا.<br>أن تصل إلى حالة من التأمل يصبح فيها اختفاء العقل أمرًا لا مفر منه.</p>
+  <blockquote class="pull">هذا هو خوف العقل الأساسي.</blockquote>
+  <p>وبسبب هذا الخوف، يُبقي الناس بعيدين عن التأمل.</p>
+  <p>ويجعلهم أعداء لأشخاص مثلي، يحاولون نشر شيء من التأمل، وطريقة من طرق الوعي والمشاهدة.</p>
+  <p>فيصبحون عدائيين تجاهي.<br>وليس ذلك بلا سبب.</p>
+  <blockquote class="pull">إن خوفهم له أساس.</blockquote>
+  <p>قد لا يكونون واعين بهذا الأمر.</p>
+  <p>لكن عقولهم تخاف حقًا من الاقتراب من أي شيء يمكن أن يخلق مزيدًا من الوعي.</p>
+  <p>لأن ذلك سيكون بداية نهاية العقل.<br>سيكون موت العقل.<br>لكن بالنسبة إليك، لا يوجد خوف.</p>
+  <blockquote class="pull">موت العقل سيكون ولادتك من جديد.</blockquote>
+  <p>سيكون بدايتك الحقيقية في الحياة.<br>ينبغي أن تكون سعيدًا.<br>ينبغي أن تفرح بموت العقل.<br>لأنه لا شيء يمكن أن يكون حرية أعظم من ذلك.<br>لا شيء آخر يمكن أن يمنحك أجنحة تطير بها في السماء.<br>ولا شيء آخر يمكن أن يجعل السماء كلها ملكًا لك.</p>
+</section>
+
+<section class="chapter" id="c6">
+  <div class="chapter-head"><span class="n">٦</span><h2>العقل سجن</h2></div>
+  <blockquote class="pull">العقل سجن.</blockquote>
+  <p>أما الوعي، فهو الخروج من السجن...<br>أو إدراك أنك لم تكن في السجن أصلًا.<br>كنت فقط تظن أنك في السجن.<br>وعندها تختفي كل المخاوف.<br>أنا أيضًا أعيش في العالم نفسه.<br>لكنني لم أشعر بالخوف ولو للحظة واحدة.</p>
+  <p>لأنه لا يوجد شيء يمكن أن يُنتزع مني.<br>يمكن أن أُقتل.<br>لكنني سأرى ذلك يحدث.<br>فما الذي يتم قتله إذًا؟<br>ليس أنا.<br>وليست تلك <strong>تلك المساحة من الوعي</strong> التي أكونها.</p>
+  <p>أعظم اكتشاف في الحياة، وأثمن كنز فيها، هو <strong>الوعي.</strong><br>من دونه، لا بد أن تبقى في الظلام، ممتلئًا بالمخاوف.<br>وستستمر في خلق مخاوف جديدة.<br>ولا نهاية لذلك.<br>ستعيش في الخوف.<br>وستموت في الخوف.</p>
+  <p>ولن تتمكن أبدًا من تذوق شيء من الحرية.<br>لقد كانت الحرية إمكانًا متاحًا لك طوال الوقت.<br>كان بإمكانك أن تطالب بها في أي لحظة.<br>لكنّك لم تطالب بها.</p>
+  <p class="final">إنها مسؤوليتك.</p>
+  <p class="small">حقوق النشر © مؤسسة أوشو الدولية، سويسرا<br>www.OSHO.com/copyright<br>OSHO علامة تجارية مسجلة لمؤسسة أوشو الدولية.</p>
+  <div class="final-mark" aria-hidden="true">
+    <svg viewBox="0 0 44 44">
+      <circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/>
+      <circle class="dot" cx="22" cy="22" r="2.5"/>
+    </svg>
+  </div>
+</section>
+
+</main>
+
+</div>
+
+<div class="lang lang-en" id="langEn" lang="en" dir="ltr" hidden>
+<header class="opening">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <path class="ring" d="M40 40 L40 84 M80 40 L80 84 M53 40 L53 84 M67 40 L67 84" fill="none" stroke-width="1" opacity=".3"/>
+    <path class="ring" d="M60 66 C50 54, 36 52, 30 46 M60 66 C70 54, 84 52, 90 46" fill="none" stroke-width="1.1" opacity=".75"/>
+    <circle class="dot" cx="60" cy="66" r="3"/>
+  </svg>
+
+  <h1 class="latin-title">How Best to Deal with Fear?</h1>
+  <p class="ar-title">Silence Shared in Words — on attachment, cockroaches, the end of the world, and the mind’s fear of your becoming aware</p>
+  <p class="byline">Osho</p>
+
+  <div class="rule"></div>
+
+  <nav aria-label="Contents">
+    <ol class="contents">
+      <li><a href="#e1"><span class="n">1</span>The Question</a></li>
+      <li><a href="#e2"><span class="n">2</span>Fear Is the Child of Attachment</a></li>
+      <li><a href="#e3"><span class="n">3</span>Man and Cockroaches</a></li>
+      <li><a href="#e4"><span class="n">4</span>What If the World Ends?</a></li>
+      <li><a href="#e5"><span class="n">5</span>The Mind’s Basic Fear</a></li>
+      <li><a href="#e6"><span class="n">6</span>The Mind Is a Prison</a></li>
+    </ol>
+  </nav>
+
+  <a class="begin" href="#e1">Begin reading<i></i></a>
+</header>
+
+<main>
+
+<section class="chapter" id="e1">
+  <div class="chapter-head"><span class="n">1</span><h2>The Question</h2></div>
+  <p class="lead">Many people describe fear in words like these:</p>
+  <div class="guided">
+    <p>It affects me in different ways...</p>
+    <p>from a vague unease, or a knot in the stomach, to a dizzying panic, as if the world were about to end.</p>
+    <p>Where does it come from?</p>
+    <p>And where does it go?</p>
+  </div>
+</section>
+
+<section class="chapter" id="e2">
+  <div class="chapter-head"><span class="n">2</span><h2>Fear Is the Child of Attachment</h2></div>
+  <p class="lead">All your fears are by-products of <strong>attachment and identification</strong>.<br>You love a woman, and with love, in the same package, comes fear:<br>she may leave you.<br>She has left someone else before and come to you.<br>There's a precedent.<br>And perhaps she'll do the same with you.</p>
+  <p>And there's the fear.<br>You feel knots in your stomach.<br>You have become too attached to her.<br>You are unable to see a simple fact:<br>you came into this world alone.</p>
+  <p>And you were here yesterday too, without this woman, and you were perfectly fine, without any knot in your stomach.</p>
+  <p>And tomorrow, if this woman goes...<br>what need is there for this knot?<br>You know how to be without her.<br>And you'll be able to be without her.<br>The fear that things may change tomorrow...<br>someone may die.</p>
+  <p>You may go bankrupt.<br>Your job may be taken from you.<br>There are a thousand and one things that can change.<br>And you are burdened with fears, endless fears.</p>
+  <p>Yet none of them has any real basis; because yesterday too you were full of all these fears, unnecessarily.</p>
+  <p>Perhaps things changed.<br>But you're still alive.</p>
+</section>
+
+<section class="chapter" id="e3">
+  <div class="chapter-head"><span class="n">3</span><h2>Man and Cockroaches</h2></div>
+  <p class="lead">And man has a tremendous capacity to adjust to any situation.<br>They say only man and cockroaches have this tremendous capacity to adapt.<br>That's why wherever you find man, you'll find cockroaches.<br>And wherever you find cockroaches, you'll find man.<br>They come together.<br>There's a similarity between them.</p>
+  <p>Even in faraway places like the North Pole or the South Pole...</p>
+  <p>when man travelled there, he suddenly discovered he had brought cockroaches with him.</p>
+  <p>And the cockroaches were in perfect health, living and multiplying.</p>
+  <p>Just look around the earth and you'll see man living in thousands of different climates, in different geographical conditions, different political situations, different social situations, different religious situations...</p>
+  <p>And still he manages to live.<br>And he has lived for centuries...<br>Things go on changing.<br>And he goes on adjusting to them.</p>
+  <blockquote class="pull">There is nothing to fear.</blockquote>
+</section>
+
+<section class="chapter" id="e4">
+  <div class="chapter-head"><span class="n">4</span><h2>What If the World Ends?</h2></div>
+  <p class="lead">Even if the world ends, so what?<br>You'll end with it.<br>Do you think you'll be left standing alone on an island while the whole world ends and leaves you behind?<br>Don't worry.<br>At least you'll have a few cockroaches with you!<br>What's the problem if the world ends?</p>
+  <p>I have been asked this question many times.<br>But what's the problem?<br>If it ends, it ends.<br>There's no problem in it, because we won't be here.<br>We'll end with it.<br>And there'll be no one left to worry about it...</p>
+  <p>And that would really be <strong>the greatest freedom from fear.</strong><br>The end of the world means the end of every problem.<br>The end of every anxiety.<br>The end of every knot in your stomach.<br>I don't see the problem.<br>But I know everybody is full of fear.</p>
+  <p>And yet the same question comes up again:</p>
+</section>
+
+<section class="chapter" id="e5">
+  <div class="chapter-head"><span class="n">5</span><h2>The Mind’s Basic Fear</h2></div>
+  <blockquote class="pull">Fear is part of the mind.</blockquote>
+  <p>The mind is a coward.<br>And it has to be a coward, because it has no real substance.<br>It is empty and hollow.<br>And so it is afraid of everything.<br>And basically, the mind is afraid of one thing:</p>
+  <blockquote class="pull">that one day you may become aware.</blockquote>
+  <p>That would really be the end of the world!<br>Not the end of the world in the literal sense...<br>but you becoming aware.<br>Reaching a state of meditation in which the disappearance of the mind becomes inevitable.</p>
+  <blockquote class="pull">This is the mind's basic fear.</blockquote>
+  <p>And because of this fear, it keeps people away from meditation.</p>
+  <p>And it makes them enemies of people like me, who are trying to spread a little meditation, a way of awareness and witnessing.</p>
+  <p>So they become antagonistic towards me.<br>And not without reason.</p>
+  <blockquote class="pull">Their fear has a basis.</blockquote>
+  <p>They may not be aware of it.</p>
+  <p>But their minds are really afraid of coming close to anything that can create more awareness.</p>
+  <p>Because that will be the beginning of the end of the mind.<br>It will be the death of the mind.<br>But for you, there is no fear.</p>
+  <blockquote class="pull">The death of the mind will be your rebirth.</blockquote>
+  <p>It will be your real beginning of life.<br>You should be happy.<br>You should rejoice in the death of the mind.<br>Because nothing could be a greater freedom than that.<br>Nothing else can give you wings to fly in the sky.<br>And nothing else can make the whole sky yours.</p>
+</section>
+
+<section class="chapter" id="e6">
+  <div class="chapter-head"><span class="n">6</span><h2>The Mind Is a Prison</h2></div>
+  <blockquote class="pull">The mind is a prison.</blockquote>
+  <p>And awareness is getting out of the prison...<br>or realising that you were never in the prison at all.<br>You only thought you were in prison.<br>And then all fears disappear.<br>I also live in the same world.<br>But I have not felt fear even for a single moment.</p>
+  <p>Because there is nothing that can be taken away from me.<br>I can be killed.<br>But I will see it happening.<br>So what is being killed, then?<br>Not I.<br>Nor <strong>that space of awareness</strong> that I am.</p>
+  <p>The greatest discovery in life, and its most precious treasure, is <strong>awareness.</strong><br>Without it, you are bound to remain in darkness, full of fears.<br>And you'll go on creating new fears.<br>And there's no end to it.<br>You'll live in fear.<br>And you'll die in fear.</p>
+  <p>And you'll never be able to taste anything of freedom.<br>Freedom has been a possibility available to you all along.<br>You could have claimed it at any moment.<br>But you didn't claim it.</p>
+  <p class="final">It is your responsibility.</p>
+  <p class="small">Copyright © OSHO International Foundation, Switzerland<br>www.OSHO.com/copyright<br>OSHO is a registered trademark of OSHO International Foundation.</p>
+  <div class="final-mark" aria-hidden="true">
+    <svg viewBox="0 0 44 44">
+      <circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/>
+      <circle class="dot" cx="22" cy="22" r="2.5"/>
+    </svg>
+  </div>
+</section>
+
+</main>
+
+</div>
+
+
+<footer data-en="How Best to Deal with Fear? — Osho">كيف نتعامل مع الخوف؟ — أوشو</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="العودة إلى الأعلى">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+    <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/>
+  </svg>
+</button>
+
+<script>
+/* Reading progress bar + back-to-top button */
+(function () {
+  var bar = document.getElementById('progressBar');
+  var toTop = document.getElementById('toTop');
+  var ticking = false;
+
+  function update() {
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    var ratio = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    bar.style.width = (ratio * 100) + '%';
+    toTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.9);
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  update();
+})();
+
+/* Text size: small/large "ع" buttons, remembered on this device */
+(function () {
+  var steps = [0.85, 0.92, 1, 1.1, 1.2, 1.32, 1.45];
+  var KEY = 'reading-text-scale';
+  var root = document.documentElement;
+  var smaller = document.getElementById('textSmaller');
+  var larger = document.getElementById('textLarger');
+  var level = document.getElementById('textLevel');
+  var hideTimer;
+  var i = 2;
+
+  try {
+    var saved = parseInt(localStorage.getItem(KEY), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < steps.length) i = saved;
+  } catch (e) {}
+
+  function apply(showLevel) {
+    // keep the reader on the same passage while the text reflows
+    var anchor = window.scrollY / Math.max(document.documentElement.scrollHeight, 1);
+    root.style.setProperty('--scale', steps[i]);
+    window.scrollTo(0, anchor * document.documentElement.scrollHeight);
+
+    smaller.disabled = i === 0;
+    larger.disabled = i === steps.length - 1;
+    try { localStorage.setItem(KEY, i); } catch (e) {}
+
+    if (showLevel) {
+      level.textContent = Math.round(steps[i] * 100) + '٪';
+      level.classList.add('on');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { level.classList.remove('on'); }, 1200);
+    }
+  }
+
+  smaller.addEventListener('click', function () { if (i > 0) { i--; apply(true); } });
+  larger.addEventListener('click', function () { if (i < steps.length - 1) { i++; apply(true); } });
+
+  apply(false);
+})();
+
+/* Bold / regular toggle, remembered on this device */
+(function () {
+  var KEY = 'reading-text-bold';
+  var btn = document.getElementById('textBold');
+  var root = document.documentElement;
+
+  function set(on) {
+    root.classList.toggle('is-bold', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'نص عادي' : 'نص عريض');
+    try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+  }
+
+  var start = false;
+  try { start = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  set(start);
+
+  btn.addEventListener('click', function () {
+    set(!root.classList.contains('is-bold'));
+  });
+})();
+
+/* Arabic / English toggle, keeps your place, remembered on this device */
+(function () {
+  var KEY = 'reading-lang';
+  var root = document.documentElement;
+  var ar = document.getElementById('langAr');
+  var en = document.getElementById('langEn');
+  var btn = document.getElementById('langToggle');
+
+  function current() { return en.hidden ? ar : en; }
+
+  // which chapter is on screen, and how far into it
+  function position() {
+    var secs = current().querySelectorAll('section.chapter');
+    var y = window.scrollY + window.innerHeight * 0.3;
+    for (var i = secs.length - 1; i >= 0; i--) {
+      var top = secs[i].getBoundingClientRect().top + window.scrollY;
+      if (y >= top) return { i: i, f: (y - top) / Math.max(secs[i].offsetHeight, 1) };
+    }
+    return null;
+  }
+
+  function set(lang, keepPlace) {
+    var pos = keepPlace ? position() : null;
+    var isEn = lang === 'en';
+    ar.hidden = isEn;
+    en.hidden = !isEn;
+    root.lang = lang;
+    root.dir = isEn ? 'ltr' : 'rtl';
+    btn.innerHTML = isEn ? '<span class="ar-glyph">ع</span>' : 'EN';
+    btn.setAttribute('aria-label', isEn ? 'النسخة العربية' : 'English version');
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+    document.querySelectorAll('[data-en]').forEach(function (el) { if (el.dataset.ar === undefined) el.dataset.ar = el.textContent; el.textContent = isEn ? el.dataset.en : el.dataset.ar; });
+
+    if (pos) {
+      var target = current().querySelectorAll('section.chapter')[pos.i];
+      var top = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top + pos.f * target.offsetHeight - window.innerHeight * 0.3, behavior: 'instant' });
+    } else if (keepPlace) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    window.dispatchEvent(new Event('scroll'));
+  }
+
+  var start = 'ar';
+  try { if (localStorage.getItem(KEY) === 'en') start = 'en'; } catch (e) {}
+  set(start, false);
+
+  btn.addEventListener('click', function () {
+    set(en.hidden ? 'en' : 'ar', true);
+  });
+})();
+</script>
+
+</body>
+</html>

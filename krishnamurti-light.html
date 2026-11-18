@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>أن تكون نورًا لنفسك</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Naskh+Arabic:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Literata:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans+Arabic:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   1. TOKENS — edit colors, fonts and sizes here
+   ========================================================= */
+:root {
+  --paper:      #F6F2EA;   /* warm off-white page */
+  --paper-deep: #EEE8DD;   /* highlighted paragraph background */
+  --ink:        #2B2825;   /* body text */
+  --ink-soft:   #5E5750;   /* secondary text */
+  --muted:      #9A9083;   /* labels, numerals */
+  --line:       #D8CFC1;   /* hairlines and rules */
+  --accent:     #8C7B63;   /* quiet bronze for small marks */
+
+  --f-title: "Amiri", "Noto Naskh Arabic", "Times New Roman", serif;
+  --f-body:  "Noto Naskh Arabic", "Amiri", "Geeza Pro", "Arial", serif;
+  --f-ui:    "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", sans-serif;
+
+  --measure: 720px;
+  --body-size: clamp(1.125rem, 1rem + 0.45vw, 1.3rem);
+  --body-lh: 2.15;
+  --scale: 1;              /* changed by the text-size control */
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: inherit; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--paper-deep); color: var(--ink); }
+
+a { color: inherit; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+/* =========================================================
+   2. READING PROGRESS + BACK TO TOP
+   ========================================================= */
+.progress {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  height: calc(2px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  pointer-events: none;
+}
+.progress span {
+  display: block;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  margin-inline-start: 0; /* grows from the right in RTL */
+}
+
+.to-top {
+  position: fixed;
+  left: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  display: grid; place-items: center;
+  cursor: pointer;
+  opacity: 0; visibility: hidden;
+  transition: opacity .4s ease, visibility .4s ease, border-color .3s ease, color .3s ease;
+  z-index: 40;
+}
+.to-top.show { opacity: 1; visibility: visible; }
+.to-top:hover { border-color: var(--accent); color: var(--ink); }
+.to-top svg { width: 16px; height: 16px; }
+
+/* ---- Reading controls: text size + bold ---- */
+.text-size {
+  position: fixed;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+  left: 1.25rem;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  padding: 2px;
+}
+.text-size button {
+  width: 42px; height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  line-height: 1;
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background-color .25s ease, color .25s ease;
+}
+.text-size button:hover:not(:disabled) { background: var(--paper-deep); color: var(--ink); }
+.text-size button:disabled { color: var(--line); cursor: default; }
+.text-size svg { width: 24px; height: 24px; display: block; }
+.text-size button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.text-size button[aria-pressed="true"]:hover { background: var(--ink); color: var(--paper); }
+.text-size .sep { width: 1px; height: 18px; background: var(--line); }
+.text-size .level {
+  position: absolute;
+  top: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .75rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.text-size .level.on { opacity: 1; }
+
+/* =========================================================
+   3. OPENING
+   ========================================================= */
+.opening {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6rem 1.5rem 4rem;
+}
+
+.emblem {
+  width: 120px; height: 120px;
+  margin-bottom: 3.5rem;
+  color: var(--ink);
+}
+.emblem circle.ring { stroke: var(--line); }
+.emblem .ring { stroke: var(--line); }
+
+.emblem circle.dot  { fill: var(--accent); }
+
+.opening h1 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 1.6rem + 4.5vw, 4.6rem);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: 0;
+}
+.opening .subtitle {
+  font-family: var(--f-title);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+  margin: 1.25rem 0 0;
+}
+.opening .rule {
+  width: 48px; height: 1px;
+  background: var(--line);
+  margin: 3rem auto 2.25rem;
+}
+
+.contents {
+  list-style: none;
+  padding: 0; margin: 0;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  line-height: 2.2;
+  color: var(--ink-soft);
+  columns: 2;
+  column-gap: 3rem;
+  text-align: right;
+}
+.contents a {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s ease, color .3s ease;
+}
+.contents a:hover { color: var(--ink); border-color: var(--line); }
+.contents .n { color: var(--muted); margin-inline-end: .6rem; }
+
+.begin {
+  margin-top: 3rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .9rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex; flex-direction: column; align-items: center; gap: .6rem;
+  transition: color .3s ease;
+}
+.begin:hover { color: var(--ink); }
+.begin i { display: block; width: 1px; height: 36px; background: var(--line); }
+
+/* =========================================================
+   4. TEXT BODY
+   ========================================================= */
+main {
+  font-size: calc(var(--body-size) * var(--scale));
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.5rem 6rem;
+}
+
+section.chapter { padding-top: 6rem; }
+
+.chapter-head {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.chapter-head .n {
+  display: block;
+  font-family: var(--f-title);
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: .5rem;
+}
+.chapter-head h2 {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: calc(clamp(1.7rem, 1.3rem + 1.4vw, 2.3rem) * var(--scale));
+  line-height: 1.5;
+  margin: 0;
+}
+.chapter-head::after {
+  content: "";
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+  margin: 1.5rem auto 0;
+}
+
+p { margin: 0 0 1.6em; }
+
+/* the very first line of the text */
+.lead {
+  font-family: var(--f-title);
+  font-size: 1.45em;
+  line-height: 1.9;
+  margin-bottom: 1.2em;
+}
+
+/* stacked short lines kept in sequence */
+.stack p { margin-bottom: .35em; }
+.stack { margin: 0 0 1.6em; }
+
+/* large centered pull quote — the text itself, in place */
+.pull {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.55rem, 1.2rem + 1.4vw, 2.1rem) * var(--scale));
+  line-height: 1.75;
+  text-align: center;
+  margin: 3.5rem auto;
+  max-width: 34ch;
+  color: var(--ink);
+}
+.pull::before, .pull::after {
+  content: "";
+  display: block;
+  width: 32px; height: 1px;
+  background: var(--line);
+  margin: 0 auto 1.5rem;
+}
+.pull::after { margin: 1.5rem auto 0; }
+
+/* soft highlighted paragraph */
+.mark {
+  background: var(--paper-deep);
+  padding: 1.4rem 1.6rem;
+  border-radius: 2px;
+  margin: 2.5rem 0;
+  font-size: 1.06em;
+}
+
+/* slightly larger single line with breathing room */
+.breath {
+  font-size: 1.15em;
+  font-weight: 500;
+  margin: 2.5rem 0;
+}
+
+/* an inner voice — the separate self speaking */
+.voice {
+  border-inline-start: 1px solid var(--line);
+  padding-inline-start: 1.5rem;
+  margin: 2.5rem 0;
+  color: var(--ink-soft);
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: 1.08em;
+}
+.voice p { margin-bottom: .35em; }
+
+/* nature's imagined speech */
+.speech {
+  margin: 2rem 0 2.5rem;
+  padding: 0 1.5rem;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* two lines placed as a pair */
+.pair {
+  margin: 3.5rem 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.3rem, 1.1rem + .8vw, 1.65rem) * var(--scale));
+  line-height: 1.8;
+}
+.pair p { margin: 0; }
+.pair p + p { color: var(--ink-soft); margin-top: .8rem; }
+
+/* the litany of small things */
+.litany {
+  list-style: none;
+  margin: 2.5rem 0;
+  padding: 0;
+  text-align: center;
+  font-family: var(--f-title);
+  font-size: 1.12em;
+  line-height: 2.3;
+}
+.litany li { color: var(--ink-soft); transition: color .3s ease; }
+.litany li:hover { color: var(--ink); }
+
+/* the final line */
+.final {
+  font-family: var(--f-title);
+  font-size: calc(clamp(1.8rem, 1.3rem + 2vw, 2.6rem) * var(--scale));
+  line-height: 1.7;
+  text-align: center;
+  margin: 5rem auto 1rem;
+  max-width: 22ch;
+}
+.final-mark {
+  display: flex; justify-content: center; margin: 2.5rem 0 0;
+}
+.final-mark svg { width: 44px; height: 44px; }
+.final-mark .ring { stroke: var(--line); }
+.final-mark .dot { fill: var(--accent); }
+
+/* closing words from the speaker */
+.afterword {
+  margin-top: 7rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  font-size: .9em;
+  color: var(--ink-soft);
+  line-height: 2;
+}
+.afterword .label {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.afterword p { margin-bottom: 1em; }
+.afterword .farewell {
+  font-family: var(--f-title);
+  font-size: 1.15em;
+  color: var(--ink);
+  margin-top: 2rem;
+}
+
+footer {
+  text-align: center;
+  padding: 3rem 1.5rem 4rem;
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* =========================================================
+   4b. BOLD READING MODE
+   ========================================================= */
+.is-bold main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold main :is(.lead, .pull, .final, .voice, .speech, .pair, .litany, .farewell, .sanskrit) { font-weight: 700; }
+
+/* =========================================================
+   4d. PAGE-SPECIFIC ELEMENTS
+   ========================================================= */
+.emblem .wave { stroke: var(--ink-soft); }
+.opening .latin-title {
+  font-family: var(--f-title);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 1.4rem + 3.8vw, 4rem);
+  line-height: 1.25;
+  direction: ltr;
+}
+.opening .ar-title {
+  font-family: var(--f-title);
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  color: var(--ink-soft);
+  margin: 1.25rem 0 0;
+}
+.opening .byline {
+  font-family: var(--f-ui);
+  font-weight: 300;
+  font-size: .95rem;
+  color: var(--muted);
+  margin: .9rem 0 0;
+  letter-spacing: .04em;
+}
+
+/* the ♪ pauses of the original talk */
+.note {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8em;
+  line-height: 1;
+  margin: .4em 0 1.6em;
+  user-select: none;
+}
+
+/* Sanskrit phrase with its translation */
+.sanskrit { text-align: center; margin: 2.5rem 0; }
+.sanskrit p { margin: 0; }
+.sanskrit p:first-child {
+  font-family: var(--f-title);
+  font-style: italic;
+  font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.2rem);
+  letter-spacing: .02em;
+}
+.sanskrit p + p { color: var(--ink-soft); font-family: var(--f-title); font-size: 1.2em; margin-top: .4rem; }
+
+.speech p { margin: 0 0 .3em; }
+.stack.indent { padding-inline-start: 1.25rem; border-inline-start: 1px solid var(--line); }
+.mark.stack-in p { margin: 0 0 .4em; }
+.mark.stack-in p:last-child { margin-bottom: 0; }
+
+/* =========================================================
+   4e. ENGLISH VERSION
+   ========================================================= */
+.lang[hidden] { display: none !important; }
+.lang-en {
+  --f-title: "Cormorant Garamond", "Garamond", "Georgia", serif;
+  --f-body:  "Literata", "Georgia", "Times New Roman", serif;
+  font-family: var(--f-body);
+  line-height: 1.8;
+  hyphens: auto;
+}
+.lang-en .chapter-head .n { font-size: 1rem; }
+.lang-en .chapter-head h2 { font-weight: 600; }
+.lang-en .opening .latin-title { font-weight: 600; }
+.lang-en .opening .ar-title { font-style: italic; }
+.lang-en .lead { font-size: 1.35em; }
+.lang-en .pull,
+.lang-en .final { font-weight: 600; line-height: 1.5; }
+.lang-en .pair,
+.lang-en .litany,
+.lang-en .speech,
+.lang-en .voice { font-size: 1.15em; }
+.contents { text-align: start; }
+.is-bold .lang-en main :is(p, li, blockquote) { font-weight: 600; }
+.is-bold .lang-en main :is(.pull, .pair, .voice, .speech, .litany, .sanskrit) { font-weight: 700; }
+
+/* language toggle button inside the reading controls */
+.text-size .lang-btn {
+  font-family: var(--f-ui);
+  font-size: .8rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+.text-size .lang-btn .ar-glyph { font-family: "Amiri", serif; font-size: 1.25rem; line-height: 1; }
+
+/* =========================================================
+   4f. CONVERSATION
+   ========================================================= */
+/* the interviewer's turns */
+.q {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: 1.4rem;
+  margin: 2rem 0;
+  color: var(--ink-soft);
+}
+.q p { margin-bottom: .9em; }
+.q p:last-child { margin-bottom: 0; }
+.q .q-strong { color: var(--ink); font-weight: 500; }
+/* short replies: "yes", "right", "mhm" */
+.aside {
+  color: var(--muted);
+  font-size: .9em;
+  margin: -.4em 0 1.4em;
+}
+.small { font-size: .88em; color: var(--ink-soft); }
+
+/* speaker names */
+.who {
+  font-family: var(--f-ui);
+  font-weight: 400;
+  font-size: .78em;
+  color: var(--accent);
+  margin-inline-end: .45em;
+  font-style: normal;
+}
+
+/* speaker line above a turn */
+.speaker {
+  font-family: var(--f-ui);
+  font-size: .8em;
+  color: var(--accent);
+  margin: 2rem 0 .4em;
+  line-height: 1.4;
+}
+.q .speaker { margin-top: 0; }
+
+/* emphasis carried over from the source text */
+main strong { font-weight: 600; }
+.lang-en main strong { font-weight: 600; }
+.pull strong, .final strong { font-weight: inherit; }
+.byline a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .3s ease, color .3s ease; }
+.byline a:hover { color: var(--ink); border-color: var(--accent); }
+.afterword .speaker { margin-top: 0; }
+
+/* guided meditation passage */
+.guided {
+  margin: 2.5rem 0;
+  padding: 1.8rem 1.6rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.guided p { margin-bottom: 1.1em; }
+.guided p:last-child { margin-bottom: 0; }
+.unclear { color: var(--muted); font-size: .85em; }
+
+.lang-ar .byline:not([dir="ltr"]) { letter-spacing: 0; font-family: var(--f-title); font-size: 1.05rem; }
+
+/* closing echo of key lines */
+.echo { text-align: center; font-family: var(--f-title); font-size: 1.2em; line-height: 2; color: var(--ink-soft); margin: 2rem 0; }
+.echo p { margin: 0 0 .5em; }
+
+/* sponsor segment kept in place, set apart */
+.ad {
+  margin: 5rem 0 0;
+  padding: 1.6rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: .82em;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.ad .label { font-family: var(--f-ui); font-size: .85rem; margin-bottom: 1rem; }
+.ad p { margin-bottom: .8em; }
+
+/* =========================================================
+   5. RESPONSIVE
+   ========================================================= */
+@media (max-width: 640px) {
+  .opening { padding: 5rem 1.25rem 3rem; }
+  .emblem { width: 88px; height: 88px; margin-bottom: 2.5rem; }
+  .opening .rule { margin: 2.25rem auto 1.75rem; }
+  .contents { columns: 1; text-align: center; }
+
+  main { padding: 0 1.25rem 4rem; }
+  section.chapter { padding-top: 4rem; }
+  .chapter-head { margin-bottom: 2.5rem; }
+
+  .pull { margin: 2.5rem auto; }
+  .mark { padding: 1.1rem 1.15rem; margin: 2rem -.25rem; }
+  .voice { padding-inline-start: 1.1rem; }
+  .speech { padding: 0 .5rem; }
+  .pair, .litany { margin: 2.5rem 0; }
+  .final { margin-top: 3.5rem; }
+  .afterword { margin-top: 5rem; }
+
+  .to-top { left: 1rem; width: 40px; height: 40px; }
+  .text-size { left: 1rem; }
+  .text-size button { width: 40px; height: 36px; }
+}
+
+@media print {
+  .text-size,
+  .progress, .to-top, .begin, .contents { display: none; }
+  body { background: #fff; }
+}
+.guided{border-inline-start:2px solid var(--line);padding:1.1em 1.4em;margin:2.2em 0;color:var(--ink-soft);background:var(--paper-deep);border-radius:4px;}
+.subhead{font-family:var(--f-ui);font-size:.92em;font-weight:600;color:var(--accent);letter-spacing:.02em;margin:3.2rem 0 1.1rem;}
+</style>
+<style>.home-link{position:fixed;top:calc(1rem + env(safe-area-inset-top,0px));right:1.25rem;z-index:45;font-family:var(--f-ui);font-weight:300;font-size:.85rem;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:.45rem 1rem;background:var(--paper);transition:border-color .3s,color .3s}.home-link:hover{color:var(--ink);border-color:var(--accent)}@media print{.home-link{display:none}}</style>
+</head>
+
+<body>
+
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+<a class="home-link" href="../index.html" data-en="← Home">→ الرئيسية</a>
+
+<div class="text-size" role="group" aria-label="أدوات القراءة">
+  <!-- smaller text: small letter + minus -->
+  <button type="button" id="textSmaller" aria-label="تصغير النص" title="تصغير النص">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 18 8.5 7 13 18M5.6 14h5.8"/>
+      <path d="M16 12h5"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <!-- larger text: big letter + plus -->
+  <button type="button" id="textLarger" aria-label="تكبير النص" title="تكبير النص">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M2.5 20 8.5 4l6 16M4.7 14.5h7.6"/>
+      <path d="M16.5 8.5h5M19 6v5"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <!-- bold / regular toggle: heavy letter B -->
+  <button type="button" id="textBold" aria-pressed="false" aria-label="نص عريض" title="نص عريض / عادي">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 4.5h6a3.6 3.6 0 0 1 0 7.2H7zM7 11.7h7a3.9 3.9 0 0 1 0 7.8H7z"/>
+    </svg>
+  </button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" id="langToggle" class="lang-btn" aria-label="English version" title="English / العربية">EN</button>
+  <span class="level" id="textLevel" aria-live="polite"></span>
+</div>
+
+<div class="lang lang-ar" id="langAr" lang="ar" dir="rtl">
+<header class="opening" id="top">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <path class="ring" d="M60 30 Q70 50 60 64 Q50 50 60 30 Z" fill="none" stroke-width="1" opacity=".6"/><path class="ring" d="M52 90 L68 90 L66 70 L54 70 Z" fill="none" stroke-width="1" opacity=".45"/>
+    <circle class="dot" cx="60" cy="60" r="2.5"/>
+  </svg>
+
+  <h1 class="latin-title">أن تكون نورًا لنفسك: في التأمل</h1>
+  <p class="ar-title">التحرر من السلطة والتجربة، ونهاية المتحكّم في الفكر، واللحظة الراهنة، والجمال، والمقدّس، والواقع والحقيقة</p>
+
+  <div class="rule"></div>
+
+  <a class="begin" href="#c1">ابدأ القراءة<i></i></a>
+</header>
+
+<main>
+
+<section class="chapter" id="c1">
+  <div class="chapter-head"><span class="n">١</span><h2>مدخل: معنى التأمل</h2></div>
+  <p class="lead">بعد أن تناولت كثيرًا من المشكلات النفسية التي يواجهها الإنسان، أود أن أتوقف عند موضوع أراه بالغ الأهمية.</p>
+  <p>لقد أُسيء فهم كلمة «التأمل» كثيرًا، على الأقل هذا ما أعتقده، سواء في الشرق أو في الغرب. فالمعنى الأصلي للكلمة هو أن تفكر في شيء بعمق، وأن تتأمله وتبحث فيه، وليس كل ما أضفناه إليها من معانٍ وممارسات.</p>
+  <p>إنها مسألة معقدة للغاية، مثل جميع المشكلات الإنسانية. والتأمل لا يحمل معنى كبيرًا إذا لم نضع له الأساس الصحيح.</p>
+  <p>إن وضع هذا الأساس نفسه، والمتمثل في السلوك القويم والتحرر من الخوف وما إلى ذلك، هو جزء من التأمل. فالتأمل ليس شيئًا منفصلًا عن الحياة اليومية أو معزولًا عنها، بل هو يشمل الحياة كلها. وأعتقد أن علينا أن نفهم هذه النقطة منذ البداية.</p>
+  <p>التأمل ليس شيئًا تمارسه لمدة عشرين دقيقة في الصباح، ثم عشرين دقيقة بعد الظهر، ثم عشرين دقيقة في المساء، وبعدها تنساه تمامًا وتعود إلى حياتك اليومية المليئة بالسلوكيات المؤذية والمشكلات.</p>
+  <p>عندما يحدث التأمل الحقيقي، يكون شيئًا استثنائيًا، ويستحق أن نستكشفه بأنفسنا. ولست أكتب هنا لأخبر أحدًا كيف يتأمل، فهذا أمر سخيف للغاية، ويدل على طفولية في التفكير.</p>
+</section>
+
+<section class="chapter" id="c2">
+  <div class="chapter-head"><span class="n">٢</span><h2>أن تكون نورًا لنفسك</h2></div>
+  <p class="lead">إن أول ما ينبغي أن نحققه هو أن نكون أحرارًا، وأن يصبح كل واحد منا نورًا لنفسه.</p>
+  <blockquote class="pull">لا يستطيع شخص آخر أن يمنحك هذا النور، ولا يمكنك أن تشعله من شمعة شخص آخر. فإذا أشعلت شمعتك من شمعة غيرك، فلن تكون سوى شمعة أخرى يمكن إطفاؤها بنفخة واحدة.</blockquote>
+  <p>أما إذا استطعنا اكتشاف معنى أن يكون الإنسان نورًا لنفسه، فإن عملية الاستكشاف هذه ذاتها ستكون جزءًا من التأمل.</p>
+  <p>لذلك، سأبدأ بالبحث في معنى أن يكون الإنسان نورًا لنفسه، وفي الأهمية الاستثنائية لهذا النور.</p>
+</section>
+
+<section class="chapter" id="c3">
+  <div class="chapter-head"><span class="n">٣</span><h2>التحرر من السلطة</h2></div>
+  <p class="lead">لقد اعتدنا كثيرًا على قبول السلطة والاحتكام إليها، وهذا جزء من الطريقة التي تشكّل بها وعينا. فنقبل سلطة الكاهن، وسلطة الكتاب، وسلطة المعلم الروحي، وسلطة أي شخص يدّعي أنه يعرف الحقيقة، وهكذا.</p>
+  <p>في جميع الأمور الروحية، إن جاز لي استخدام كلمة «روحية»، ينبغي ألّا تكون هناك أي سلطة على الإطلاق. لأنك إذا خضعت لسلطة ما، فلن تكون حرًا، ولن تكون حرًا في البحث والاستكشاف واكتشاف معنى التأمل بنفسك.</p>
+  <p>لذلك، إذا كنت مهتمًا حقًا بهذا السؤال، فعلينا أن نفهم أننا لا نتحدث عن كيفية التأمل، فذلك أمر طفولي مرة أخرى، بل نتحدث عن حركة التأمل نفسها، وعن فعل التأمل وتدفّقه، وعن اكتشاف معناه.</p>
+  <p>ومن هنا يظهر سؤال السلطة. إن الاعتماد على شخص آخر كي يخبرك ماذا تفعل وكيف تتأمل هو أحد أشكال الخضوع للسلطة.</p>
+  <p>حيث توجد السلطة، لا توجد حرية. ففي عالم الاستبداد والديكتاتورية، وفي الدولة الشمولية، لا توجد حرية. وبالمثل، إذا لم تتحرر داخليًا من السلطة، فلن تكون حرًا.</p>
+  <p>كلمة «السلطة» ترتبط في أصلها بكلمة «المؤلف»؛ أي الشخص الذي يبدأ شيئًا أو ينشئه ويبتكره. ثم يأتي الآخرون ويتبعونه، ويحوّلون ما بدأه إلى سلطة يحتكمون إليها، وعندها يصبح الأمر ميتًا وفاقدًا للحيوية.</p>
+  <p>لذلك، ينبغي أن تكون شديد الحذر إذا كنت تريد حقًا التعمق في مسألة التأمل، وأن تتحرر داخليًا بصورة كاملة من جميع أشكال السلطة والمقارنة. ولا أعرف إن كان ذلك في متناول كل من يحاول.</p>
+  <p>ويشمل هذا التحرر سلطة كاتب هذه السطور نفسه، بل سلطته على وجه الخصوص. لأنك إذا اتبعت ما أقوله، فقد انتهى الأمر، ولم تعد تبحث بنفسك.</p>
+  <p>لذلك، يجب أن تكون واعيًا للغاية بأهمية السلطة، وأن تفهم أن لها مكانًا في بعض المجالات، مثل الطب والعلم وما شابه ذلك، لكن عليك أن تدرك في الوقت نفسه أن السلطة لا ينبغي أن تكون لها أي أهمية في حياتك الداخلية.</p>
+  <p>وسواء كانت السلطة سلطة شخص آخر، وهو أمر يمكن التخلص منه نسبيًا بسهولة، أم كانت سلطة تجربتك الشخصية ومعرفتك واستنتاجاتك، فإن الأمر واحد.</p>
+  <p>فقد تتحول خبرتك ومعرفتك واستنتاجاتك إلى سلطتك الخاصة، ثم تصبح هذه السلطة تحيزًا يحكم طريقة رؤيتك للأشياء.</p>
+  <p>لذلك، ينبغي أن تتحرر من سلطة الآخرين، وكذلك من سلطة استنتاجاتك الخاصة وتجاربك السابقة، وسأعود بعد قليل إلى معنى كلمة «التجربة». وينبغي أيضًا أن تتحرر من سلطة فهمك الشخصي عندما تقول: «أنا أفهم، ولذلك فأنا على حق». كل هذه أشكال من السلطة.</p>
+  <p>ومن هنا ندرك مدى صعوبة التعمق حقًا في هذه المسألة الاستثنائية التعقيد؛ فلن يستطيع الإنسان أبدًا أن يكون نورًا لنفسه إذا لم يفعل ذلك.</p>
+  <blockquote class="pull">وعندما تصبح نورًا لنفسك، تصبح نورًا للعالم، لأن العالم هو أنت، وأنت هو العالم.</blockquote>
+  <p>إذن، أول ما ينبغي فهمه هو أنه لا يوجد أحد ليرشدك، ولا أحد ليخبرك بأنك تتقدم، ولا أحد ليخبرك بما ينبغي أن تفعل أو ليشجعك على الاستمرار.</p>
+  <p>عليك أن تقف وحدك تمامًا في التأمل.</p>
+</section>
+
+<section class="chapter" id="c4">
+  <div class="chapter-head"><span class="n">٤</span><h2>معرفة الذات والملاحظة في اللحظة الراهنة</h2></div>
+  <p class="lead">لا يمكن لهذا النور أن يظهر في داخلك إلا عندما تفهم نفسك، أو تبدأ في استكشافها واكتشاف حقيقتك.</p>
+  <p>وهذا هو الوعي بالذات: أن تعرف ما أنت عليه، لا وفقًا لعلماء النفس، ولا وفقًا لفيلسوف أو لمعلم روحي، ولا وفقًا لكاتب هذه السطور، بل أن تعرف نفسك مباشرة، وأن تكون واعيًا بطبيعتك وبنيتك الداخلية وبطريقة تفكيرك وشعورك.</p>
+  <p>أن تكتشف البنية الكاملة لكل ذلك. ولهذا، تصبح معرفة الذات أمرًا بالغ الأهمية.</p>
+  <p>ليس الوصف الذي يقدمه شخص آخر عنك، بل أن ترى بنفسك «ما هو كائن»؛ أن ترى ما أنت عليه فعلًا، لا ما تعتقد أنك عليه، ولا ما تتخيل أنك ينبغي أن تكونه، بل ما يحدث داخلك في الواقع.</p>
+  <p>وما أصعب ذلك! فقلّما يحاول أحدنا فعلًا أن يكون واعيًا بما يحدث في داخله، في أعماق نفسه، داخل جلده، إن صح التعبير.</p>
+  <p>فنحن نلاحظ أنفسنا من خلال معرفتنا السابقة؛ من خلال الخبرات التي اكتسبناها، أو المعلومات التي جمعناها من الآخرين.</p>
+  <p>وباستخدام هذه المعرفة، نفحص أنفسنا. أي أننا نفحص أنفسنا انطلاقًا من خلفية الماضي، ولذلك فإننا لا نلاحظ ما هو موجود فعلًا في اللحظة الراهنة.</p>
+  <p>إذن، لا بد من التحرر حتى نتمكن من الملاحظة. وعندئذ، ومن خلال هذه الملاحظة، تبدأ البنية الكاملة لطبيعة الإنسان في الظهور والانكشاف.</p>
+  <p>وهذا أمر يستحق انتباهًا كاملًا، لأن قلّة من الناس سيقولونه لك صراحة؛ فكثيرون لديهم مصالحهم الخاصة، ويريدون تأسيس منظمات وجماعات، وما إلى ذلك من الأمور.</p>
+  <p>لكي نفهم أنفسنا، لا بد من الملاحظة، وهذه الملاحظة لا يمكن أن تحدث إلا الآن. لكن اللحظة الحاضرة لا تعني أن الماضي هو الذي يتحرك ليراقب الحاضر. والفرق بين الأمرين جوهري.</p>
+  <p>يمكنني أن أراقب اللحظة الراهنة انطلاقًا من الماضي، ومن استنتاجاتي السابقة وتحيزاتي وآمالي ومخاوفي وسائر ما أحمله معي.</p>
+  <p>وهذا يعني أنني أراقب الحاضر بعين الماضي، ثم أظن أنني أراقب اللحظة الراهنة كما هي. لكن ملاحظة اللحظة الراهنة لا يمكن أن تحدث إلا عندما لا يكون هناك مراقب يمثل الماضي. إذن، تصبح ملاحظة اللحظة الراهنة أمرًا بالغ الأهمية.</p>
+  <p>ينبغي لحركة الماضي، عندما تلتقي بالحاضر، أن تنتهي عند تلك النقطة. تلك هي اللحظة الراهنة.</p>
+  <p>لكن إذا سمحت لها بالاستمرار، فإن اللحظة الراهنة تتحول إلى مستقبل أو إلى ماضٍ، ولا تبقى أبدًا اللحظة الحاضرة الفعلية.</p>
+  <p>إذن، لا يمكن للملاحظة أن تحدث إلا في اللحظة الراهنة، أثناء حدوث الشيء نفسه. عندما تشعر بالغضب، أو عندما تكون جشعًا، عليك أن تلاحظ ذلك كما هو.</p>
+  <p>وهذا يعني ألّا تدينه، وألّا تحكم عليه، بل أن تراقبه وتتركه يظهر بكامل حركته، ثم يتلاشى ويختفي.</p>
+  <p>وفي هذا جمال عظيم. فقد اعتدنا، أو تعلمنا تقليديًا، أن نقمع مشاعرنا، أو أن نوجّهها نحو مسار معين.</p>
+  <p>لكن ما أقوله هو أن تلاحظ غضبك وجشعك ورغباتك الجنسية، مهما كانت، وأن تلاحظها دون تدخل الماضي.</p>
+  <p>عندئذ، يظهر الغضب بكل حركته، ثم يتلاشى ويذبل حتى يختفي. وعندما تفعل ذلك، لن تعود إلى الغضب بالطريقة نفسها مرة أخرى. ومن لم يجرب ذلك بعد، فليجربه يومًا ما، وسيكتشف الأمر بنفسه.</p>
+  <p>اسمح للجشع أو الحسد أو الغيرة، أيًا كانت المشاعر، أن تظهر من خلال الملاحظة التي لا تتدخل فيها الاختيارات أو الأحكام. اكتفِ بملاحظتها.</p>
+  <p>وفي أثناء هذه الملاحظة ذاتها، يظهر الشعور ويتعرض لتغيير جذري.</p>
+  <p>حتى العلماء يقولون إن الشيء الذي تفحصه يتغير بفعل الملاحظة نفسها؛ فعندما تراقب خلية تحت المجهر، فإن فعل الملاحظة ذاته قد يؤثر في ما تتم ملاحظته.</p>
+  <p>وهكذا، فإن الملاحظة التي لا تنطلق من خلفية الماضي تُحدث تغييرًا.</p>
+  <p>إذن، أن تكون واعيًا بنفسك دون أي اختيار، وأن ترى ما يحدث فعلًا في اللحظة الراهنة، يعني أن تسمح للحركة الكاملة للذات، لهذا «الأنا»، بأن تظهر وتتكشف.</p>
+  <p>ومن خلال ملاحظتها، يحدث تحول جذري فيها، بشرط ألّا تكون هناك خلفية من الماضي، وألّا يكون هناك مراقب يمثل تلك الخلفية.</p>
+  <p>والفهم وحده لا يكفي؛ المهم أن يُعاش. وعندما يحدث ذلك، فمن الواضح أن السلطة لن يكون لها أي مكان. أما الشخص الذي يقول: «أنا أعرف، وسأفعل هذا أو ذاك»، فذلك يجب أن ينتهي تمامًا وإلى الأبد.</p>
+  <p>وبذلك، لا يعود هناك وسيط بين ملاحظتك والحقيقة، وسأعود بعد قليل إلى ماهية الحقيقة، إن كان من الممكن وصفها أصلًا.</p>
+  <p>وعندما يحدث ذلك، يصبح الإنسان نورًا لنفسه، فلا يعود يسأل أي شخص، في أي وقت، كيف ينبغي له أن يفعل شيئًا.</p>
+  <p>ففي الفعل نفسه، أي في الملاحظة نفسها، يحدث التغيير. هذا هو أول ما ينبغي أن نتعلمه: يجب على الإنسان أن يكون نورًا لنفسه.</p>
+  <p>ومن الصعب للغاية مقاومة التقاليد التي تقول إن عليك أن تتبع شخصًا يرشدك. ولهذا يتكاثر المعلمون الروحيون القادمون من الهند في أنحاء العالم كالفطر القبيح.</p>
+  <p>وأقول ذلك لأنهم في الواقع يعيدون تقديم التقاليد القديمة، ويضعونها في كلمات مختلفة، ثم يعرضونها على الناس.</p>
+  <p>إنه الشيء القديم نفسه. في الهند، استمر هذا الأمر آلاف السنين.</p>
+  <p>لقد قابلني كثيرون ممن يُطلق عليهم كبار المعلمين الروحيين، وكانوا يغادرون بعد لقائي وهم يُظهرون احترامًا كبيرًا، لكنهم يعودون بعد ذلك إلى اتباع طريقهم المعتاد.</p>
+  <p>إذن، الحرية في الملاحظة، والتحرر من السلطة بكل أشكالها، أمران أساسيان.</p>
+</section>
+
+<section class="chapter" id="c5">
+  <div class="chapter-head"><span class="n">٥</span><h2>البحث عن التجارب</h2></div>
+  <p class="lead">ثم يأتي موضوع البحث عن التجارب، وهو أمر ينبغي أن ينتهي، مع أننا جميعًا نرغب فيه. وإليك السبب.</p>
+  <p>نحن نمر كل يوم بأنواع مختلفة من التجارب. لدينا تجارب جنسية، وتجارب من أنواع شتى، وتجارب نحصل عليها من الكتب، وغيرها. إننا نعيش في ظل رغبة مستمرة في خوض المزيد من التجارب.</p>
+  <p>لكن كلمة «تجربة» تعني المرور بشيء حتى نهايته، أي أن تمر به وتنهيه، لا أن تسجله في ذاكرتك. لأن تسجيل التجربة يحولها إلى ذكرى، وهذه الذكرى تشوّه الملاحظة.</p>
+  <p>لنفترض، على سبيل المثال، أن شخصًا ما مسيحي. لقد تشكّل وعيه على مدى ألفي عام من خلال معتقداته وأفكاره وعقائده وطقوسه ومخلّصيه، وهو يريد أن يختبر ذلك الشيء الذي يؤمن به، أيًا كان.</p>
+  <p>وبالتالي، سيختبره بالفعل، لأن هذا هو ما أعدّه له تكييفه الذهني.</p>
+  <p>وفي الهند، توجد أشكال مختلفة من المعتقدات، وآلهة متعددة، بل مئات الآلهة. وقد تشكّل وعي الناس وفقًا لهذه المعتقدات، فيرون رؤى تتوافق مع ما اعتادوا الإيمان به.</p>
+  <p>فكل شخص يرى وفقًا لما تشكّل عليه وعيه. وعندما نشعر بالملل من التجارب الجسدية، نبدأ في البحث عن نوع آخر من التجارب، تجارب روحية.</p>
+  <p>وتصبح رغبتنا الكبرى هي اكتشاف ما إذا كان الله موجودًا، أو رؤية رؤى روحية، أو خوض تجارب من هذا النوع.</p>
+  <p>لكننا سنختبر هذه الرؤى والتجارب وفقًا لخلفيتنا الذهنية، لأن عقولنا مشروطة بطريقة معينة. ينبغي أن نكون واعين بذلك، وأن نفهم ما الذي تنطوي عليه التجربة. فما الذي تتطلبه التجربة؟ لا بد من وجود شخص يختبر شيئًا ما.</p>
+  <p>هناك دائمًا شخص يريد التجربة، وهذا الشخص يحمل رغباته وتوقعاته وكل ما قيل له من قبل، ويحمل تكييفه الذهني بأكمله.</p>
+  <p>ثم يريد أن يختبر شيئًا يسميه الله، أو النيرفانا، أو أي اسم آخر. وبالتالي، سيختبر شيئًا يطابق ما يتوقعه. لكن كلمة «تجربة» تتضمن أيضًا عملية التعرّف على الشيء. والتعرّف يعني أنك تعرفه مسبقًا. ولذلك، فإن ما تختبره ليس شيئًا جديدًا حقًا.</p>
+  <p>إن العقل الذي يطالب باستمرار بالمزيد من التجارب يعيش في الماضي، ومن ثم لا يستطيع أبدًا أن يفهم شيئًا جديدًا تمامًا أو أصيلًا.</p>
+  <p>لذلك، يجب أن نتحرر من الرغبة الملحّة في خوض التجارب.</p>
+  <p>إن هذا النوع من التأمل شاق للغاية، لأننا جميعًا نريد حياة سهلة ومريحة وسعيدة، حياة تسير بسلاسة دون عناء.</p>
+  <p>وعندما نواجه شيئًا صعبًا يتطلب انتباهنا وطاقتنا، نقول: «هذا ليس مناسبًا لي، سأختار طريقًا آخر».</p>
+  <p>إذن، لا سلطة، ولا رغبة ملحّة في خوض أي نوع من التجارب. وهذا يعني أنه لا يوجد شخص منفصل يتولى عملية الاختبار.</p>
+</section>
+
+<section class="chapter" id="c6">
+  <div class="chapter-head"><span class="n">٦</span><h2>الخوف والمتعة والحزن والعلاقة</h2></div>
+  <p class="lead">بعد ذلك، علينا أن نلاحظ مخاوفنا ومتعنا وأحزاننا، وكل التعقيدات التي نواجهها في حياتنا اليومية وعلاقاتنا بالآخرين.</p>
+  <p>علينا أن نلاحظ كل ذلك بعناية شديدة.</p>
+  <p>والملاحظة الحقيقية، كما قلت، تعني عدم وجود مراقب منفصل. ولذلك، لا يكون هناك مجال لقمع المشاعر أو إنكارها أو قبولها وفقًا لأحكام مسبقة، بل نكتفي بملاحظة الخوف.</p>
+  <p>لأن الخوف، عندما يكون موجودًا، يشوّه إدراكنا دائمًا. وكذلك عندما ننشغل بملاحقة المتعة وحدها، فإن ذلك يشوّه رؤيتنا. وعندما يكون هناك حزن، فإنه يصبح عبئًا يثقل العقل.</p>
+  <p>لذلك، فإن العقل الذي يتعلم معنى التأمل يجب أن يتحرر من هذه العوامل، وأن يفهم العلاقات اليومية بين الناس، وهي مهمة أكثر صعوبة بكثير.</p>
+  <p>فعلاقتنا ببعضنا تقوم على الصورة الذهنية التي كوّنها كل منا عن الآخر، وما يرتبط بها من أمور.</p>
+  <p>وطالما أن هناك عقلًا يصنع الصور الذهنية ويحتفظ بها، فإنه يمنع قيام علاقة حقيقية بيننا. وهذا أمر أساسي قبل أن نتعمق كثيرًا في موضوع التأمل. ولهذا، فإن عددًا قليلًا جدًا من الناس يمارسون التأمل بطريقة صحيحة وحقيقية.</p>
+  <p>أما البقية، فيتعاملون معه باعتباره تسلية أو نشاطًا ترفيهيًا يضيفونه إلى حياتهم كما هي، دون أن يغيّروا شيئًا جوهريًا فيها.</p>
+</section>
+
+<section class="chapter" id="c7">
+  <div class="chapter-head"><span class="n">٧</span><h2>هل يمكن التحكم في الفكر؟</h2></div>
+  <p class="lead">والآن، عندما نكون قد رسّخنا كل ذلك جيدًا في داخلنا، وبعمق، وهو في حد ذاته جزء من التأمل، يمكننا الانتقال إلى سؤال آخر: هل يمكن التحكم في الفكر؟</p>
+  <p>أينما ذهبت، سواء إلى الهند أو إلى أحد أديرة الزن أو إلى أشكال التأمل التبتية وغيرها، ستجد أنهم يجلبون هذه الممارسات من آسيا إلى العالم.</p>
+  <p>والسبب هو أن الناس مستعدون جدًا لتصديق كل ما يُعرض عليهم، ويظنون أنه شيء جديد، مع أنه قديم قدم الجبال.</p>
+  <p>يتخلى المرء عن المسيحية ثم يحمل على عاتقه عبئًا آخر. إنها اللعبة القديمة نفسها. إذن، السؤال هو: هل يمكن التحكم في الفكر؟</p>
+  <p>تؤكد جميع أنظمة التأمل، حيث يعني النظام ممارسة طريقة محددة يومًا بعد يوم، أن الفكر يجب أن يخضع للسيطرة، لأنه يُعدّ العامل الذي يزعج العقل الساكن.</p>
+  <p>يقولون إن الفكر يجب أن يُضبط تمامًا حتى لا يستمر في الثرثرة أو الشرود أو الانتقال من موضوع إلى آخر.</p>
+  <p>ولهذا يعتقدون أن السيطرة عليه تتطلب أنظمة ومناهج مختلفة، مثل نظام الزن، والنظام التبتي، والنظام البوذي، وأشكال التأمل الهندوسي المتعددة.</p>
+  <p>وكلها، في جوهرها، تقول: «تحكّم في أفكارك».</p>
+  <p>ومن بحث في هذه المسألة، أو قرأ عنها، أو استمع إلى معلم روحي، وأرجو ألّا يكون لدى القارئ معلم من هذا النوع، يعرف أنهم جميعًا يصرّون على ضرورة التحكم في الفكر.</p>
+  <p>لقد استمعت إليهم جميعًا، وجاء بعضهم إليّ وأخبرني بالكثير عن هذه الأمور، بل طلبوا مني الانضمام إليهم، لكنني لن أدخل في كل ذلك الهراء.</p>
+  <p>إنهم جميعًا يصرّون على أن الفكر يجب أن يخضع للسيطرة، وأن يُمنع من التحرك بحرية.</p>
+  <p>ومن الأنظمة التي يستخدمونها ما يُسمّى «يوغا المانترا»، وكذلك التأمل التجاوزي.</p>
+  <p>إنهم يمنحونها اسمًا جذابًا مثل «التجاوزي»، ثم يحوّلونها إلى شيء يبدو رائعًا واستثنائيًا.</p>
+  <p>أما كلمة «مانترا»، فمعناها الأساسي عبارة أو صيغة أو كلمة يُعتقد أنها تساعد على تحقيق التركيز. ويمكن أن تكون الكلمة «كوكا كولا» نفسها!</p>
+  <p>وقد يبدو هذا مضحكًا، لكنه ليس كذلك؛ فكثيرون وقعوا في هذا الأمر، وهذا بالضبط ما أعترض عليه. لقد أصبحوا أسرى له.</p>
+  <p>قد تكون اسم ذلك المشروب، أو أي كلمة أخرى، أو عبارة باللغة السنسكريتية يمنحك إياها معلمك الروحي مقابل مئة وخمسين دولارًا، وهكذا دواليك.</p>
+  <p>والفكرة هي أن هذه الكلمة ستساعدك على التركيز، بحيث يصبح فكرك محصورًا في اتجاه واحد ولا يتحرك بعيدًا.</p>
+  <p>لكن عندما تفحص الأمر، يظهر سؤال مهم: من هو الذي يتحكم؟</p>
+  <p>أنت تريد التحكم في أفكارك، وترى أن التحكم فيها أمر مهم، فتحاول السيطرة عليها، لكنها تستمر في الإفلات منك.</p>
+  <p>وقد تقضي أربعين عامًا في محاولة التحكم فيها، وفي كل لحظة تفلت منك الأفكار وتعود إلى الشرود. لذلك، عليك أن تسأل: من هو الذي يتحكم؟ ولماذا نبذل كل هذا الجهد الهائل في محاولة السيطرة؟</p>
+  <p>الجهد يعني وجود صراع. هناك فكرة تتحرك بعيدًا، ثم تأتي فكرة أخرى تقول: «يجب أن أسيطر عليها». وهكذا تستمر المعركة، والصراع، والتوتر بلا نهاية. لذلك، علينا أن نبحث في هوية الشخص الذي يتحكم.</p>
+  <p>أليس المتحكّم مجرد فكرة أخرى؟ هناك فكرة تتخذ لنفسها موقعًا مسيطرًا وتقول: «يجب أن أتحكم في الفكرة الأخرى». أي أن جزءًا من الفكر يحاول السيطرة على جزء آخر منه.</p>
+  <p>وهذه النقطة تحتاج إلى نظر شديد العناية، لأن من يفوته رؤيتها يفوته جوهر الموضوع.</p>
+  <p>لقد قسّم الفكر نفسه إلى جزأين: حركة التفكير التي تستمر في الشرود والثرثرة والانشغال بأمور مختلفة، ثم فكرة أخرى تقول: «يجب ألّا أفعل ذلك، يجب أن أتحكم في نفسي».</p>
+  <p>فعندما تحاول التركيز على شيء ما، قد تجد فكرك قد انتقل فجأة إلى حذائك أو إلى أي شيء آخر. ثم تظهر فكرة ثانية تقول: «يجب ألّا أفعل ذلك، يجب أن أسيطر على فكري».</p>
+  <blockquote class="pull">لكن كلتيهما فكرتان.</blockquote>
+  <p>إحداهما تتخذ موقع السيطرة وتحاول قمع الأخرى.</p>
+  <p>انظر إلى هذا بنفسك، وتحقق من صحة ما أقوله، لا لأنني أنا من يقوله، بل لأنك تستطيع رؤية حقيقته مباشرة.</p>
+  <p>فالفكر يقول: «سيكون الأمر رائعًا لو استطعت التحكم في الفكرة الشاردة، حتى أتمكن من اختبار النيرفانا»، أو أي شيء آخر يرغب في اختباره.</p>
+  <p>وهكذا ينقسم الفكر إلى متحكّم وشيء يُراد التحكم فيه. وينشأ صراع بين المتحكّم والمتحكَّم فيه. ثم تأتي الأنظمة المختلفة لتساعدك على ممارسة السيطرة.</p>
+  <p>ومن هذه الأنظمة أن تصبح واعيًا ببطء بكل ما تفعله، وبطريقة تنفسك ووضعية جسدك، إلى آخر هذه الأمور. لكنني لا أطيق كل هذه الممارسات!</p>
+  <p>إن المهم حقًا هو أن نكتشف ما إذا كان هناك تفكير فحسب، دون وجود مفكر منفصل عن الفكرة، ودون وجود مفكر يحاول التحكم في الفكر.</p>
+  <p>ربما كنت تفكر في أربطة حذائك، أو في الله، أو في زوجتك، أو في السعادة التي تأمل أن تجدها في المستقبل. لكن كل ذلك يظل تفكيرًا.</p>
+  <p>إذن، نحن لا نهتم بكيفية التحكم في الفكر، بل نريد أن نفهم عملية التفكير بكاملها. وعندما يصبح الإنسان واعيًا بكل ذلك، يرى أن هناك تفكيرًا فحسب.</p>
+  <p>لا توجد فكرة شاردة منفصلة، ثم متحكّم يحاول إعادتها إلى المسار الصحيح. هناك عملية التفكير وحدها.</p>
+  <p>والآن، إذا كانت هناك عملية التفكير فقط، فلماذا ينبغي أن تتوقف؟ التفكير حركة؛ حركة عبر الزمن، تنتقل من هنا إلى هناك، وتتحرك باستمرار. التفكير حركة في الزمن.</p>
+  <p>والآن، هل يمكن لهذه الحركة الزمنية أن تنتهي؟ هذا هو السؤال، وليس كيفية إيقاف التفكير.</p>
+  <p>لقد شدّد الناس، ومعهم المعلمون الروحيون وسائر تلك الجماعات، على ضرورة التحكم في الفكر عند ممارسة التأمل.</p>
+  <p>لكن حيثما توجد السيطرة، يوجد الجهد والصراع والقمع. وحيثما يوجد القمع، تظهر أنواع مختلفة من السلوك العصابي والاضطرابات النفسية، وما إلى ذلك.</p>
+</section>
+
+<section class="chapter" id="c8">
+  <div class="chapter-head"><span class="n">٨</span><h2>الحياة دون سيطرة، ونهاية المقارنة</h2></div>
+  <p class="lead">هل من الممكن أن نعيش دون أي سيطرة على الإطلاق؟<br>هذا لا يعني أن تفعل كل ما يحلو لك، أو أن تعيش حياة بلا أي حدود أو مسؤولية.</p>
+  <p>إنه سؤال أكثر جدية بكثير: هل يمكنك أن تعيش حياتك اليومية، على المستوى النفسي، دون أي محاولة للسيطرة على نفسك؟</p>
+  <p>إنها مسألة جدية للغاية، لأننا لا نعرف حياة لا يوجد فيها ظل من ظلال السيطرة. نحن لا نعرف إلا الحياة القائمة على التحكم.</p>
+  <p>ولكي نفهم معنى الحياة دون سيطرة، علينا أن نتعمق في المسألة. فالسيطرة تنشأ عندما تكون هناك مقارنة.</p>
+  <p>أقارن نفسي بك، وأريد أن أصبح مثلك، لأنك أكثر ذكاءً أو أكثر إشراقًا أو أكثر روحانية، أو أي شيء آخر.</p>
+  <p>لذلك، أريد أن أكون مثلك، فأبذل جهدًا لكي أصل إلى ما أنت عليه. لكن ماذا يحدث إذا لم تكن هناك مقارنة على الإطلاق، على المستوى النفسي؟ أنا كما أنا. قد لا أعرف ما أنا عليه حقًا، لكنني ما أنا عليه. ولا توجد حركة داخلية نحو شيء أعتقد أنه أفضل أو أعلى مما أنا عليه الآن.</p>
+  <p>فماذا يحدث عندئذ؟ عندما تختفي المقارنة، ماذا يحدث؟ هل أصبح بليدًا لأنني قارنت نفسي بك، وأنت ذكي ومتقد الذهن، فشعرت أنني أقل منك؟ أم أن كلمة «بليد» نفسها هي التي تجعلني أشعر بالبلادة؟</p>
+  <p>عندما نذهب إلى متحف، ننظر إلى لوحات مختلفة ونقارن بينها. نقارن مايكل أنجلو بغيره من الفنانين، ونقول: «هذه أفضل من تلك».</p>
+  <p>لقد تعلمنا تقليديًا أن نفعل ذلك.</p>
+  <p>وفي المدرسة، نقول للطالب: «يجب أن تكون أفضل من الطالب الذي حصل على تقدير A»، فيبدأ في بذل الجهد وراء الجهد ليصبح مثله.</p>
+  <p>ثم تأتي امتحانات الجامعة وسائر مراحل الحياة، وكلها تقوم على المقارنة وبذل الجهد للتفوق على الآخرين.</p>
+  <p>لكن عندما تفهم حركة القياس والمقارنة، وتدرك عدم صحتها على المستوى النفسي، فإنك تعود إلى ما هو موجود فعلًا.</p>
+  <p>تصبح أمام «ما هو كائن» بالضبط. ولا يمكنك مواجهة ما هو كائن فعلًا إلا إذا كانت لديك الطاقة اللازمة لذلك. لكن هذه الطاقة تبددت بسبب المقارنة.</p>
+  <p>والآن، عندما تتوقف عن تبديد طاقتك في المقارنة، تصبح لديك الطاقة اللازمة لملاحظة ما هو موجود فعلًا، ولملاحظة اللحظة الراهنة بكامل طاقتك.</p>
+  <p>وعندئذ، يخضع ما هو موجود الآن لتحول جذري. لقد قسّم الفكر نفسه إلى متحكّم ومتحكَّم فيه، لكن الحقيقة هي أن هناك تفكيرًا فحسب. لا يوجد متحكّم منفصل، ولا شيء منفصل يُتحكَّم فيه، بل توجد عملية التفكير وحدها. والتفكير حركة في الزمن، بوصفه قياسًا وانتقالًا من شيء إلى آخر. فهل يمكن لهذه الحركة أن تنتهي بصورة طبيعية وسهلة، دون أي محاولة للسيطرة عليها؟</p>
+  <p>عندما أبذل جهدًا لإيقاف التفكير، فإن التفكير يظل يعمل. وأكون قد خدعت نفسي عندما افترضت أن المفكر يختلف عن الفكرة. لذلك، فإن سؤالي مختلف تمامًا. هناك التفكير وحده. المفكر هو الفكر نفسه. ولا يوجد مفكر مستقل إذا لم يكن هناك تفكير.</p>
+</section>
+
+<section class="chapter" id="c9">
+  <div class="chapter-head"><span class="n">٩</span><h2>هل يمكن لحركة الزمن أن تنتهي؟</h2></div>
+  <p class="lead">إذن، هل يمكن لعملية التفكير، التي تمثل حركة في الزمن، أن تنتهي؟<br>أي هل يمكن للزمن أن يتوقف؟</p>
+  <p>الزمن هو الماضي.</p>
+  <p>لا يوجد زمن مستقبلي مستقل بذاته. إن ما نسميه الزمن المستقبلي لا يظهر إلا عندما يلتقي الماضي بالحاضر، فيتغير ويتحرك إلى الأمام.</p>
+  <p>إذن، الزمن هو حركة الماضي، بعد أن يتغير، لكنه يظل مستمرًا في الحركة. وهذه الحركة يجب أن تتوقف. وأعني بها حركة المعرفة بأكملها، وحركة كل ما أصبح معروفًا لدينا. ما لم تتحرر من هذه الحركة، فلن تكون حرًا في ملاحظة الشيء الجديد.</p>
+  <p>لكن لا يمكنك إيقافها بالإرادة، لأن ذلك يعني أنك تحاول السيطرة عليها. ولا يمكنك إيقافها بالرغبة، لأن الرغبة جزء من الإحساس والفكر والصورة الذهنية.</p>
+  <p>فكيف يمكن لهذه الحركة أن تنتهي بصورة طبيعية؟ أؤكد: بصورة طبيعية، بسهولة وسعادة، بحيث تنتهي دون أن تكون أنت مدركًا أنك جعلتها تنتهي؟</p>
+  <p>هل سبق لك أن تخليت عن شيء يمنحك متعة هائلة في اللحظة نفسها، وتخلّيت عنه فورًا، دون تردد؟ يمكنك التخلي عن الألم والحزن، لأنك تريد نسيانهما وإبعادهما عنك. لكنني لا أتحدث عن ذلك. أنا أتحدث عن شيء يمنحك متعة عظيمة. هل سبق لك أن تخليت عنه فورًا، دون أي جهد؟</p>
+  <p>الماضي هو خلفيتنا الدائمة.</p>
+  <p>نحن نعيش في الماضي. لقد جرحني شخص ما، أو قال لي شيئًا، وأنا أريد هذا أو ذاك، وهكذا. إن حياتنا كلها تقريبًا تقضيها النفس في الماضي.</p>
+  <p>فالحدث الذي يقع الآن يتحول إلى ذكرى، وتصبح الذكرى جزءًا من الماضي. وهكذا نعيش في الماضي. والسؤال هو: هل يمكن لحركة الماضي أن تتوقف؟</p>
+  <p>يمكن أن تتوقف، لكن ليس من خلال خدعة، ولا عبر تكرار شيء معين ثم القول: «نعم، لقد أوقفتها». هذا سيكون أمرًا سخيفًا للغاية.</p>
+  <blockquote class="pull">المقصود هو أن الماضي حركة، أما الآن فهو انعدام الحركة.</blockquote>
+  <p>وهذا اكتشاف مهم. الماضي حركة تتغير من خلال الحاضر، ثم تستمر نحو المستقبل. هذه هي حركة الزمن. الماضي يتحرك باستمرار، ويتقدم إلى الأمام، ويلتقي بالحاضر، ثم يواصل حركته.</p>
+  <p>أما الآن، فهو انعدام الحركة، لأنك لا تعرف ماهية اللحظة الراهنة فعلًا؛ كل ما تعرفه هو الحركة.</p>
+  <p>عندما تلتقي تلك الحركة باللحظة الراهنة، لا تعود هناك حركة على الإطلاق. وهذا ليس مجرد كلام يُقرأ، بل لا بد من الشعور به وفهمه بعمق. إن ما لا يتحرك هو اللحظة الراهنة.</p>
+  <p>واللحظة الراهنة، كما قلت، هي الماضي عندما يلتقي بالحاضر وينتهي عنده. إذن، عندما تلتقي حركة الماضي باللحظة الراهنة، التي لا حركة فيها، تتوقف. وهكذا، فإن الفكر، بوصفه حركة للماضي، يلتقي بالحاضر لقاءً كاملًا وينتهي عنده.</p>
+  <p>ينبغي أن نتأمل في هذا، وأن نفكر فيه بعمق. ومن يتعمق فيه سيفهمه.</p>
+</section>
+
+<section class="chapter" id="c10">
+  <div class="chapter-head"><span class="n">١٠</span><h2>رؤية الوعي بكامله: خريطة بلا اتجاه</h2></div>
+  <p class="lead">والآن، ننتقل إلى الأمر التالي.</p>
+  <p>العقل ليس مجرد مادة، وليس الدماغ وحده، بل يشمل أيضًا الإحساس وكل الأشياء التي وضعها الفكر فيه.</p>
+  <p>وهذا كله يشكّل الوعي، الذي يحتوي بدوره على مطالب ورغبات لاواعية مختلفة.</p>
+  <p>والسؤال هو: هل يمكن ملاحظة هذا الوعي بكامله بوصفه كلًا واحدًا، بدلًا من فحصه جزءًا بعد جزء؟</p>
+  <p>لأننا إذا فحصنا كل جزء على حدة، فلن ننتهي أبدًا. إن ملاحظة الكل هي وحدها التي تتيح نهاية لهذه العملية، أو تفتح الطريق أمام شيء آخر. إذن، هل يمكن ملاحظة الوعي بكامله، ملاحظة شاملة؟</p>
+  <p>نعم، يمكن ذلك، إذا فعلناه فعلًا.</p>
+  <p>لنفترض أنك تنظر إلى خريطة. عندما تنظر إلى الخريطة، فإنك عادةً تبحث عنها لأنك تريد الذهاب إلى مكان معين.</p>
+  <p>وهكذا يكون لديك اتجاه محدد.</p>
+  <p>أنت موجود في مدينة ما، وتريد الذهاب إلى برن أو زيورخ أو جنيف، مثلًا، فتكون وجهتك معروفة.</p>
+  <p>لكن ملاحظة الخريطة بأكملها تعني النظر إليها دون اتجاه محدد. الأمر بسيط، ولا داعي لأن نجعله أعقد مما هو عليه. وبالطريقة نفسها، فإن النظر إلى الوعي بكامله يتطلب ألّا يكون لديك اتجاه مسبق. وهذا يعني ألّا يكون لديك دافع محدد.</p>
+  <p>فعندما تنظر إلى الخريطة وتريد الانتقال من هنا إلى هناك، يكون لديك دافع يدفعك إلى الذهاب إلى وجهتك، سواء كانت المتعة أو أي غرض آخر.</p>
+  <p>وهذا الدافع هو الذي يحدد اتجاهك.</p>
+  <p>لكن إذا أردت أن تلاحظ شيئًا بصورة كاملة، سواء كان نفسك أو وعيك، فلا بد من غياب الدافع، وبالتالي غياب الاتجاه المسبق.</p>
+  <p>هل هذا ممكن، رغم أننا تربينا على فعل كل شيء بدافع محدد؟ لقد تعلمنا أن كل فعل يجب أن تكون وراءه غاية. ولا يوجد فعل بلا دافع، هكذا تربينا، وهكذا علمتنا الأديان والمجتمعات.</p>
+  <p>لكن بمجرد وجود دافع، سواء كان المتعة أو تجنب الألم، أو الحصول على مكافأة أو الهروب من العقاب، فإنه يحدد اتجاهًا معينًا، وبالتالي يمنعك من رؤية الكل.</p>
+  <p>إذا فهمت ذلك ورأيته مباشرة، فلن يكون هناك دافع. ولن يكون السؤال: «كيف أتخلص من دوافع نفسي؟». لا يمكنك رؤية شيء رؤية شاملة إلا عندما لا يكون هناك اتجاه محدد مسبقًا. وكل هذا جزء من التأمل.</p>
+  <p>وهكذا، لا يكون هناك مركز تنطلق منه حركة ذات اتجاه معين. المركز هو الدافع. إذا لم يكن هناك دافع، فلا يوجد مركز، وبالتالي لا يوجد اتجاه.</p>
+  <p>وماذا يحدث بعد ذلك؟</p>
+</section>
+
+<section class="chapter" id="c11">
+  <div class="chapter-head"><span class="n">١١</span><h2>اليوغا والقدرات الخارقة</h2></div>
+  <p class="lead">هناك أيضًا جميع أنظمة اليوغا. فما معنى كلمة «يوغا»؟</p>
+  <p>يُقال إن كلمة «يوغا» تعني الاتحاد أو الوصل، لكنني أعتقد، وقد قيل لي ذلك أيضًا، أن هذا المعنى غير صحيح تمامًا.</p>
+  <p>فالكلمة كانت تحمل في الأصل معنى مختلفًا تمامًا، كما كنت أظن. وهو الانسجام الكامل.</p>
+  <p>لا يتحقق الانسجام الكامل من خلال ممارسة التمارين أو التحكم في التنفس، بل إن طريقة عيشك نفسها هي التي ينبغي أن تكون منسجمة.</p>
+  <p>ولا يمكنك تحقيق ذلك إلا عندما تفهم طبيعة علاقاتك بالآخرين. وهناك أمر آخر ينبغي أن أتناوله: عندما تعيش بهذه الطريقة يومًا بعد يوم، قد تكتسب قدرات معينة.</p>
+  <p>تُسمّى هذه القدرات في اللغة السنسكريتية «سيدهي»، ويُقال إنها تشمل القدرة على استبصار الأمور، لأن جسدك يصبح شديد الحساسية، وعقلك يصبح صافيًا للغاية، وقد تشعر بأنك قادر على قراءة أفكار الآخرين، أو تكتسب قدرات لم تكن لديك من قبل، مثل التخاطر، وما إلى ذلك.</p>
+  <p>لقد مررت بكل هذه الأمور من قبل. لكن إذا وقعت أسيرًا لهذه القدرات، فلن تستطيع التقدم إلى أبعد من ذلك.</p>
+  <p>إذا انشغلت بهذه الأمور الطفولية، وهي في الحقيقة أمور طفولية، فقد يصبح جسدك شديد الحساسية، حتى إنك تكاد تسمع ما يقوله الناس أو يفكرون فيه.</p>
+  <p>وقد تمنحك هذه القدرات شعورًا بالقوة والتميز. لكن إذا أصبحت هذه القدرات مهمة بالنسبة إليك، فإنك تكون قد فقدت جوهر الأمر كله.</p>
+  <p>ويتحدث الناس الآن، للأسف، عن أمور مثل «الكونداليني»، رغم أنهم لا يعرفون عنها شيئًا حقيقيًا. ولن أتطرق إلى ذلك هنا.</p>
+</section>
+
+<section class="chapter" id="c12">
+  <div class="chapter-head"><span class="n">١٢</span><h2>العقل الصامت</h2></div>
+  <p class="lead">والآن، أصبح العقل مستعدًا؛ مستعدًا للملاحظة دون أي حركة داخلية.</p>
+  <p>لأنك فهمت معنى التحرر من السلطة، وفهمت سائر الأمور التي سبق الحديث عنها، ولا حاجة إلى تكرارها كلها هنا.</p>
+  <p>لقد أصبحت قادرًا على الوقوف وحدك تمامًا، وأن تكون نورًا لنفسك، دون تدخل يفرض نفسه عليك.</p>
+  <p>وبالتالي، لا يعود العقل والدماغ يسجلان كل شيء بالطريقة المعتادة.</p>
+  <p>وهكذا يصبح العقل خاليًا من أي حركة. ومن ثم، يصبح صامتًا. ليس صمتًا مفروضًا بالقوة، ولا صمتًا مصطنعًا ندرّب أنفسنا عليه، فذلك لا معنى له. بل هو صمت لا ينتج عن محاولة إيقاف شيء أو إسكات الضوضاء.</p>
+  <p>إنه نتيجة طبيعية للحياة اليومية عندما تُعاش بوعي. والحياة اليومية تحمل جمالها الخاص، وهذا الجمال جزء من انعدام الحركة الذي أتحدث عنه.</p>
+</section>
+
+<section class="chapter" id="c13">
+  <div class="chapter-head"><span class="n">١٣</span><h2>ما الجمال؟</h2></div>
+  <p class="lead">ولا بد هنا من الحديث عن الجمال.</p>
+  <p>ما الجمال؟</p>
+  <p>هل الجمال هو الوصف الذي نعطيه للشيء؟ أم هو الشيء الذي نراه، بتناسقه وارتفاعه وعمقه وظلاله؟ هل هو لوحة لمايكل أنجلو أو أحد تماثيله؟</p>
+  <p>ما الجمال؟</p>
+  <p>هل هو موجود في عين الناظر؟ أم في الشيء الموجود أمامنا؟ أم أنه ليس في العين ولا في الشيء الخارجي؟</p>
+  <p>نقول إن هذا الشيء جميل، أو إن هذه العمارة جميلة، أو إن هذه الكاتدرائية رائعة، أو إن هذه اللوحة فاتنة.</p>
+  <p>وهكذا نعتقد أن الجمال موجود هناك، في الخارج. لكن هل هو موجود في عين الناظر؟</p>
+  <p>ربما لأن عين الناظر تدربت على رؤية الأشياء، وأصبحت قادرة على التمييز بين ما تعتبره قبيحًا وما تراه متناسقًا، وبين ما تراه عميقًا أو أنيقًا وما تراه خاليًا من العمق أو الأسلوب.</p>
+  <p>فهل الجمال موجود في الشيء الخارجي؟ أم في عين الناظر؟ أم أنه لا يتعلق بالعين ولا بالشيء الموجود في الخارج؟</p>
+  <blockquote class="pull">الجمال يكون حاضرًا عندما لا تكون أنت حاضرًا.</blockquote>
+  <p>عندما تنظر إلى شيء، فأنت الذي تنظر، وأنت الذي تحكم عليه، وأنت الذي تقول: «إن تناسقه رائع»، أو «إنه ساكن إلى درجة مذهلة»، أو «إنه عميق ويحمل عظمة استثنائية».</p>
+  <p>لكن كل ذلك نابع من نظرتك أنت، ومن الطريقة التي تمنح بها الشيء أهميته. أما عندما لا تكون أنت حاضرًا بوصفك مركزًا للحكم والتقييم، فهناك يكون الجمال. وقد لا يكون هذا سهل الإدراك من أول وهلة. وعندما يكون هذا الجمال حاضرًا، فقد لا يحدث أي تعبير عنه على الإطلاق.</p>
+  <p>لكننا نريد التعبير عنه، لأننا نبحث من خلال ذلك عن تحقيق ذواتنا. فنقول: «أنا فنان، أنا فنان عظيم»، وما إلى ذلك.</p>
+  <p>وهكذا، ربما يكون الجمال حاضرًا عندما لا تكون أنت، بوصفك إنسانًا مثقلًا بكل معاناتك وقلقك وألمك وأحزانك، حاضرًا في مركز التجربة.</p>
+  <p>عندئذ، يكون هناك جمال. وهكذا يصبح العقل ساكنًا، خاليًا من الحركة.</p>
+</section>
+
+<section class="chapter" id="c14">
+  <div class="chapter-head"><span class="n">١٤</span><h2>المقدّس</h2></div>
+  <p class="lead">ثم يأتي السؤال: ماذا يحدث بعد ذلك؟<br>نحن نبحث في هذا الأمر، وإن صح التعبير، فإننا لا نعود نبحث، لأن كل بحث وكل حركة قد توقفت.<br>فماذا يوجد عندما تتوقف الحركة؟ هل الرحمة نفسها حركة؟</p>
+  <p>قد يشعر الإنسان بالتعاطف، فيذهب لمساعدة الآخرين، أو يسافر إلى قرية هندية أو إلى قرية أخرى ليقدم العون للناس لأنه يشعر بالرحمة تجاههم.</p>
+  <p>لكن كل هذه الأمور قد تكون أشكالًا مختلفة من العاطفة والمودة والمشاعر.</p>
+  <p>والسؤال هنا عن شيء أعمق وأهم بكثير: عندما لا تكون هناك حركة، ماذا يحدث؟ وما الذي يكون موجودًا؟</p>
+  <p>هل يكون ما يوجد هو الرحمة؟ أم أن هناك شيئًا يتجاوز كل ذلك؟ هل يوجد شيء أصيل تمامًا، ومن ثم مقدس؟ فنحن لا نعرف حقًا ما هو المقدس. نحن نعتبر الصور والرموز التي نؤمن بها مقدسة، سواء ذهبنا إلى كنيسة أو معبد أو مسجد.</p>
+  <p>لكن هذه الصور والرموز أنشأها الفكر. والفكر عملية مادية، وهو حركة مستمرة.</p>
+  <p>إذن، عندما لا تكون هناك حركة، هل يوجد شيء أصيل تمامًا، شيء لم تمسّه البشرية، ولم تمسّه الحركة الكاملة للفكر؟</p>
+  <blockquote class="pull">ربما يكون ذلك الشيء هو الأصل الحقيقي، وهو الأكثر قداسة.</blockquote>
+  <p>هذا هو التأمل الحقيقي: أن تبدأ من البداية تمامًا، دون أن تعرف مسبقًا. فإذا بدأت وأنت تعتقد أنك تعرف، فسوف تنتهي إلى الشك.</p>
+  <p>أما إذا بدأت من حالة عدم المعرفة، فقد تصل إلى الحقيقة المطلقة، أي إلى اليقين.</p>
+  <p>لقد بدأنا بالقول إنه يجب أن نستكشف أنفسنا، وأن أنفسنا تتكوّن مما نعرفه، ولذلك علينا أن نُفرغ العقل من المعروف.</p>
+  <p>ومن هذا الفراغ، يتدفق كل شيء آخر بصورة طبيعية.</p>
+  <blockquote class="pull">وعندما يوجد ذلك الشيء الأقدس، الذي يمثل حركة التأمل بأكملها، تصبح للحياة دلالة مختلفة تمامًا.</blockquote>
+  <p>ولا تعود الحياة سطحية أبدًا.</p>
+  <p>قد تمتلك عشرة بدلات أو منزلًا، لكن إذا كان هذا الشيء حاضرًا في حياتك، فلن يعود لأي شيء آخر الأهمية نفسها.</p>
+</section>
+
+<section class="chapter" id="c15">
+  <div class="chapter-head"><span class="n">١٥</span><h2>الدافع والعمل الصحيح لكسب الرزق</h2></div>
+  <p class="lead">وقد يسأل سائل: هل الدافع والحركة ضروريان في مجال الأعمال؟ وإذا كان الأمر كذلك، فكيف يختار المرء الدافع الصحيح؟</p>
+  <p>والسؤال في جوهره: ما الدافع الصحيح، أو ما الدافع السليم لكسب الرزق؟ أي: ما العمل الذي ينبغي للمرء أن يمارسه لكسب عيشه؟</p>
+  <p>لست أسأل عن العمل الأكثر ملاءمة لراحتك، ولا عن الأكثر ربحًا أو متعة أو فائدة مادية. السؤال هو: ما العمل الصحيح الذي ينبغي للإنسان أن يمارسه لكسب رزقه؟ وكيف يكتشف ذلك؟</p>
+  <p>قبل أن تسأل: «ما العمل الصحيح لكسب الرزق؟»، عليك أولًا أن تفهم معنى كلمة «الصحيح». ما معنى أن يكون الشيء صحيحًا؟ كلمة «صحيح» تعني دقيقًا وسليمًا ومطابقًا لما هو موجود فعلًا؛ أن يكون الأمر دقيقًا.</p>
+  <p>ولا يمكن أن يكون الفعل دقيقًا إذا كنت تقوم به من أجل الربح أو المتعة وحدهما. إذن، ما الصحيح؟ هذه أيضًا مسألة شديدة التعقيد. كل ما أنشأه الفكر هو جزء من الواقع.</p>
+  <p>فالخيمة التي صنعها الإنسان باستخدام الفكر هي واقع موجود. والشجرة التي لم يصنعها الفكر هي أيضًا واقع موجود. وحتى الأوهام واقع موجود.</p>
+  <p>فالأوهام التي يحملها الإنسان في داخله، وتخيلاته وما شابه ذلك، كلها موجودة بوصفها وقائع نفسية.</p>
+  <p>لكن الفعل الذي ينطلق من ذلك الوهم قد يكون فعلًا عصابيًا، وهذا أيضًا واقع يحدث بالفعل. لذلك، عندما تسأل عن العمل الصحيح لكسب الرزق، عليك أولًا أن تفهم ما هو الواقع. والواقع ليس هو الحقيقة، وسأعود إلى ذلك في الختام. إذن، هناك واقع.</p>
+  <p>والسؤال هو: ما الفعل الصحيح داخل هذا الواقع؟ كيف ستكتشف ما هو الصحيح؟ عليك أن تكتشف ذلك بنفسك، لا أن تنتظر من شخص آخر أن يخبرك به.</p>
+  <p>فإذا قلت لك: «اذهب وافعل هذا»، فقد تندم لاحقًا، ثم تلعنني في نهاية المطاف لأنك اتبعت نصيحتي.</p>
+  <p>لذلك، عليك أن تكتشف بنفسك ما هو الفعل الدقيق والصحيح، وما هو العمل المناسب لكسب الرزق داخل عالم الواقع.</p>
+  <p>والواقع يشمل الأوهام أيضًا، فلا تحاول الهروب منها أو الابتعاد عنها. فالوهم والأنشطة التي تنشأ عنه، مثل الاعتقاد، جزء من الواقع.</p>
+  <p>إن الإيمان بالأمة أو القومية، وسائر الأمور المشابهة، قد يكون شكلًا من أشكال الواقع النفسي الذي يحمل في داخله وهمًا.</p>
+  <p>إذن، إذا أخذنا كل ذلك بوصفه جزءًا من الواقع، فما الفعل الصحيح الذي ينبغي القيام به؟ ومن سيخبرك بذلك؟ لا أحد، بالطبع.</p>
+  <p>عندما ترى الواقع دون أن تختلط رؤيتك بالأوهام، مع إدراك أن الأوهام نفسها موجودة بوصفها وقائع نفسية، فإن مجرد إدراكك لهذا الواقع هو ما نسميه الذكاء.</p>
+  <p>عندئذ، لا يعود إدراكك خليطًا من الواقع والوهم وسائر العوامل التي تشوّه رؤيتك.</p>
+  <p>هناك واقع الشجرة، وواقع الخيمة، وهناك أيضًا الواقع الذي أنشأه الفكر، بما في ذلك الرؤى والأوهام والتخيلات.</p>
+  <p>وعندما ترى كل ذلك كما هو، فإن فعل الرؤية نفسه هو الذكاء. وهذا الذكاء هو الذي يحدد ما ستفعله.</p>
+  <p>الذكاء هو القدرة على إدراك ما هو موجود فعلًا، وما هو غير موجود. أن ترى ما هو كائن، وأن تفهم حقيقة ما هو كائن.</p>
+  <p>وهذا يعني ألّا تكون منخرطًا نفسيًا في رغباتك ومطالبك الداخلية، لأنها جميعًا قد تكون أشكالًا من الوهم.</p>
+  <p>إن رؤية كل ذلك بوضوح هي الذكاء. وهذا الذكاء سيعمل أينما كنت. وبالتالي، فهو الذي سيخبرك بما ينبغي لك أن تفعله.</p>
+</section>
+
+<section class="chapter" id="c16">
+  <div class="chapter-head"><span class="n">١٦</span><h2>الواقع والحقيقة</h2></div>
+  <p class="lead">والآن، ماذا عن الحقيقة؟<br>لقد تحدثنا عن الواقع، لكن ما الحقيقة؟<br>من المؤكد أن الحقيقة ليست هي الواقع.<br>إذن، هناك حقيقة.</p>
+  <p>وهذا موضوع يحتاج إلى تعمق أطول مما تتسع له هذه السطور. هناك حقيقة، والسؤال هو: ما الصلة بين الواقع والحقيقة؟ الصلة بينهما هي هذا الذكاء. فالذكاء الذي يدرك الواقع بكامله لا يحوّل هذا الواقع إلى حقيقة، ولا يخلط بينهما.</p>
+  <p class="final">ثم تعمل الحقيقة على الواقع من خلال الذكاء.</p>
+  <div class="final-mark" aria-hidden="true">
+    <svg viewBox="0 0 44 44">
+      <circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/>
+      <circle class="dot" cx="22" cy="22" r="2.5"/>
+    </svg>
+  </div>
+</section>
+
+</main>
+
+</div>
+
+<div class="lang lang-en" id="langEn" lang="en" dir="ltr" hidden>
+<header class="opening">
+  <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="ring" cx="60" cy="60" r="58" fill="none" stroke-width="1"/>
+    <path class="ring" d="M60 30 Q70 50 60 64 Q50 50 60 30 Z" fill="none" stroke-width="1" opacity=".6"/><path class="ring" d="M52 90 L68 90 L66 70 L54 70 Z" fill="none" stroke-width="1" opacity=".45"/>
+    <circle class="dot" cx="60" cy="60" r="2.5"/>
+  </svg>
+  <h1 class="latin-title">To Be a Light to Oneself: On Meditation</h1>
+  <p class="ar-title">Freedom from authority and experience, the end of the controller of thought, the now, beauty, the sacred, and reality and truth</p>
+  <div class="rule"></div>
+  <a class="begin" href="#e1">Begin reading<i></i></a>
+</header>
+<main>
+<section class="chapter" id="e1">
+  <div class="chapter-head"><span class="n">1</span><h2>Opening: The Meaning of Meditation</h2></div>
+  <p class="lead">Having looked at many of the psychological problems human beings face, I would like to dwell on a subject I consider extremely important.</p>
+  <p>The word "meditation" has been greatly misunderstood, at least I think so, both in the East and in the West. The original meaning of the word is to think about something deeply, to ponder it and look into it, not all the meanings and practices we've added to it.</p>
+  <p>It's an extremely complex matter, like all human problems. And meditation has little meaning if we haven't laid the right foundation for it.</p>
+  <p>Laying that foundation itself, which is right behaviour, freedom from fear and so on, is part of meditation. Meditation isn't something separate from daily life or isolated from it; it covers the whole of life. And I think we must understand that point from the start.</p>
+  <p>Meditation isn't something you do for twenty minutes in the morning, then twenty minutes in the afternoon, then twenty minutes in the evening, and then forget about entirely and go back to your daily life full of harmful behaviour and problems.</p>
+  <p>When real meditation happens, it is something extraordinary, and worth exploring for oneself. I am not writing here to tell anyone how to meditate; that would be utterly absurd, and shows a childish way of thinking.</p>
+</section>
+<section class="chapter" id="e2">
+  <div class="chapter-head"><span class="n">2</span><h2>To Be a Light to Oneself</h2></div>
+  <p class="lead">The first thing we must achieve is to be free, for each one of us to become a light to himself.</p>
+  <blockquote class="pull">No one else can give you that light, and you can't light it from someone else's candle. If you light your candle from someone else's, you'll be just another candle that can be blown out with a single breath.</blockquote>
+  <p>But if we can discover what it means to be a light to oneself, that very process of exploration will be part of meditation.</p>
+  <p>So I will begin by inquiring into what it means to be a light to oneself, and see how extraordinarily important that light is.</p>
+</section>
+<section class="chapter" id="e3">
+  <div class="chapter-head"><span class="n">3</span><h2>Freedom from Authority</h2></div>
+  <p class="lead">We're very used to accepting authority and deferring to it, and that's part of the way our consciousness has been shaped. We accept the authority of the priest, the authority of the book, the authority of the guru, the authority of anyone who claims to know the truth, and so on.</p>
+  <p>In all spiritual matters, if I may use the word "spiritual," there should be no authority whatsoever. Because if you submit to an authority, you won't be free, you won't be free to inquire, explore and discover the meaning of meditation for yourself.</p>
+  <p>So if you're really interested in this question, we must understand that we're not talking about how to meditate, which again is childish, but about the movement of meditation itself, the act and flow of meditation, and discovering its meaning.</p>
+  <p>And from this the question of authority arises.<br>Depending on someone else to tell you what to do and how to meditate is one form of submission to authority.</p>
+  <p>Where there's authority, there's no freedom. In the world of tyranny and dictatorship, in the totalitarian state, there's no freedom.</p>
+  <p>Likewise, if you're not inwardly free of authority, you won't be free.</p>
+  <p>The word "authority" is related at its root to the word "author," the person who begins something, originates and creates it. Then others come along and follow him, and turn what he began into an authority they defer to, and then it becomes dead and lifeless.</p>
+  <p>So you must be extremely careful if you really want to go deeply into the question of meditation, and be completely free inwardly of every form of authority and comparison.</p>
+  <p>And I don't know whether that is within reach of everyone who tries.</p>
+  <p>And that freedom includes the authority of the writer of these lines himself, in fact his authority in particular. Because if you follow what I say, it's over, and you're no longer inquiring for yourself.</p>
+  <p>So you must be very aware of the significance of authority, and understand that it has a place in certain fields, like medicine, science and so on, but realise at the same time that authority should have no importance at all in your inner life.</p>
+  <p>And whether the authority is someone else's, which is relatively easy to get rid of, or the authority of your own experience, knowledge and conclusions, it's the same thing.</p>
+  <p>For your experience, knowledge and conclusions may turn into your own authority, and then that authority becomes a prejudice governing the way you see things.</p>
+  <p>So you must be free of the authority of others, and also of the authority of your own conclusions and past experiences.<br>And I will come back shortly to the meaning of the word "experience."<br>And you must also be free of the authority of your own understanding when you say: "I understand, so I'm right."<br>All these are forms of authority.</p>
+  <p>From this we see how difficult it is to go really deeply into this extraordinarily complex question; Because you'll never be able to be a light to yourself if you don't do it.</p>
+  <blockquote class="pull">And when you become a light to yourself, you become a light to the world, because the world is you, and you are the world.</blockquote>
+  <p>So the first thing to understand is that there's no one to guide you, no one to tell you you're progressing, no one to tell you what to do or to encourage you to carry on.</p>
+  <p>You must stand completely alone in meditation.</p>
+</section>
+<section class="chapter" id="e4">
+  <div class="chapter-head"><span class="n">4</span><h2>Self-Knowledge and Observation in the Now</h2></div>
+  <p class="lead">That light can only come into being in you when you understand yourself, or begin to explore yourself and discover who you are.</p>
+  <p>And that is self-awareness: to know what you are, not according to the psychologists, nor according to a philosopher or a guru, nor according to the writer of these lines, but to know yourself directly, to be aware of your nature, your inner structure and your way of thinking and feeling.</p>
+  <p>To discover the whole structure of all that.<br>That's why self-knowledge becomes so important.</p>
+  <p>Not the description someone else gives of you, but to see for yourself "what is"; to see what you actually are, not what you think you are, nor what you imagine you should be, but what is actually happening inside you.</p>
+  <p>How rarely does any of us actually try to be aware of what is going on inside, in the depths of oneself, inside one's skin, so to speak.</p>
+  <p>We observe ourselves through our previous knowledge. Through the experiences we've acquired, or the information we've gathered from others.</p>
+  <p>And with that knowledge, we examine ourselves. That is, we examine ourselves from the background of the past, and so we don't observe what is actually there in the present moment.</p>
+  <p>So there must be freedom in order to observe.<br>And then, through that observation, the whole structure of human nature begins to appear and unfold.</p>
+  <p>This deserves complete attention, because few people will tell you this plainly; because many people have their own vested interests; they want to found organisations and groups, you know, and all that kind of thing.</p>
+  <p>To understand ourselves, there must be observation, and that observation can only take place now.<br>But the present moment doesn't mean the past moving in to observe the present.</p>
+  <p>I can observe the present moment from the past, from my previous conclusions, prejudices, hopes, fears and everything else I carry with me.</p>
+  <p>That means I'm observing the present with the eye of the past, and then I think I'm observing the present moment as it is.<br>But observation of the present moment can only take place when there's no observer who represents the past.<br>So the observation of the present moment becomes extremely important.</p>
+  <p>The movement of the past, when it meets the present, should end at that point. That is the now.</p>
+  <p>But if you let it go on, the present moment turns into the future or the past, and never remains the actual present moment.</p>
+  <p>So observation can only take place in the present moment, while the thing itself is happening.<br>When you're angry, or when you're greedy, you must observe it as it is.</p>
+  <p>And that means not condemning it, not judging it, but watching it and letting it flower in its whole movement, then fade and disappear.</p>
+  <p>There is great beauty in this. We have been used to, or traditionally taught, suppressing our feelings, or channelling them in a particular direction.</p>
+  <p>But what I am saying is: observe your anger, your greed, your sexual desires, whatever they are, and observe them without the past interfering.</p>
+  <p>Then anger flowers in its whole movement, and then fades and withers until it disappears.<br>And when you do that, you won't return to anger in the same way again.<br>Whoever has not tried it yet, let him try it some day, and he will find out for himself.</p>
+  <p>Let greed, envy or jealousy, whatever the feeling, flower through an observation in which choices and judgements don't interfere. Just observe it.</p>
+  <p>And in that very observation, the feeling flowers and undergoes a radical change.</p>
+  <p>Even scientists say that what you examine is changed by the observation itself; when you watch a cell under a microscope, the very act of observation may affect what is being observed.</p>
+  <p>Observation that doesn't spring from the background of the past brings about change.</p>
+  <p>So to be aware of yourself without any choice, and to see what is actually happening in the present moment, means allowing the whole movement of the self, of this "me," to flower and unfold.</p>
+  <p>And through observing it, a radical transformation takes place in it, provided there's no background of the past, and no observer representing that background.</p>
+  <p>Understanding alone is not enough; what matters is that it is lived. And when that happens, obviously authority has no place at all.<br>As for the person who says, "I know, and I'll do this or that," that must end completely and forever.</p>
+  <p>And so there's no longer any intermediary between your observation and the truth, and I will come back shortly to what truth is, if it can be described at all.</p>
+  <p>And when that happens, a human being becomes a light to himself, and never again asks anyone, at any time, how he should do something.</p>
+  <p>For in the act itself, that is, in the observation itself, the change takes place.<br>This is the first thing we must learn: a human being must be a light to himself.<br>And it's extremely difficult to resist the tradition that says you must follow someone who guides you.<br>That's why the gurus from India are springing up all over the world like ugly mushrooms.</p>
+  <p>I say that because they're really repackaging the old traditions, putting them into different words, and then presenting them to people.</p>
+  <p>It's the same old thing.<br>In India this has gone on for thousands of years.</p>
+  <p>Many of the so-called great gurus have come to see me, and they'd leave after meeting me showing great respect, but then go back to following their usual path.</p>
+  <p>So freedom in observation, and freedom from authority in all its forms, are essential.</p>
+</section>
+<section class="chapter" id="e5">
+  <div class="chapter-head"><span class="n">5</span><h2>The Search for Experience</h2></div>
+  <p class="lead">Then there's the matter of seeking experiences, which must come to an end, although we all want it. And here is why.</p>
+  <p>Every day we go through different kinds of experience. We have sexual experiences, all kinds of experiences, experiences we get from books, and so on. We live with a constant desire to have more experiences.</p>
+  <p>But the word "experience" means to go through something to the end, that is, to go through it and finish with it, not to record it in your memory.<br>Because recording an experience turns it into a memory, and that memory distorts observation.</p>
+  <p>Suppose, for example, someone is a Christian. His consciousness has been shaped over two thousand years by his beliefs, ideas, dogmas, rituals and saviours, and he wants to experience that which he believes in, whatever it is.</p>
+  <p>And so he will indeed experience it, because that's what his conditioning has prepared him for.</p>
+  <p>In India there are different kinds of beliefs, many gods, hundreds of gods in fact. And people's consciousness has been shaped by these beliefs, so they see visions that match what they're used to believing.</p>
+  <p>Each person sees according to how his consciousness has been shaped.<br>And when we get bored with physical experiences, we start looking for another kind of experience, spiritual experiences.</p>
+  <p>And our great desire becomes to find out whether God exists, or to see spiritual visions, or to have experiences of that kind.</p>
+  <p>But we will experience these visions and experiences according to our mental background, because our minds are conditioned in a particular way.<br>We should be aware of that, and understand what experience involves.<br>What does experience require?<br>There must be someone who experiences something.</p>
+  <p>There's always someone who wants the experience, and that person carries his desires, his expectations, everything he's been told before, and his whole conditioning.</p>
+  <p>Then he wants to experience something he calls God, or nirvana, or some other name.<br>And so he'll experience something that matches what he expects.<br>But the word "experience" also involves the process of recognising the thing. And recognition means you already know it.<br>So what you experience isn't really something new.</p>
+  <p>A mind that constantly demands more experiences lives in the past, and so can never understand something wholly new or original.</p>
+  <p>So we must be free of the insistent desire for experience.</p>
+  <p>This kind of meditation is extremely arduous, because we all want an easy, comfortable, happy life, a life that runs smoothly without effort.</p>
+  <p>And when we come across something difficult that demands our attention and energy, we say: "This isn't for me, I'll take another path."</p>
+  <p>So no authority, and no insistent desire for any kind of experience.<br>And that means there's no separate person doing the experiencing.</p>
+</section>
+<section class="chapter" id="e6">
+  <div class="chapter-head"><span class="n">6</span><h2>Fear, Pleasure, Sorrow and Relationship</h2></div>
+  <p class="lead">After that, we must observe our fears, our pleasures and our sorrows, and all the complications we face in our daily lives and our relationships with others.</p>
+  <p>We must observe all that very carefully.</p>
+  <p>Real observation, as I said, means there's no separate observer. So there's no room for suppressing feelings, denying them or accepting them according to prior judgements; we just observe the fear.</p>
+  <p>Because fear, when it's there, always distorts our perception.<br>And likewise when we're preoccupied with pursuing pleasure alone, it distorts our seeing.<br>And when there's sorrow, it becomes a burden weighing on the mind.</p>
+  <p>So the mind that's learning what meditation means must be free of these factors, and understand the daily relationships between people, which is a far more difficult task.</p>
+  <p>For our relationship with one another is based on the image each of us has formed of the other, and everything connected with it.</p>
+  <p>And as long as there's a mind that makes images and holds on to them, it prevents any real relationship between us.<br>And that's essential before we go very far into the subject of meditation.<br>That's why very few people practise meditation in a right and real way.</p>
+  <p>The rest treat it as an amusement or an entertainment they add to their lives as they are, without changing anything fundamental in them.</p>
+</section>
+<section class="chapter" id="e7">
+  <div class="chapter-head"><span class="n">7</span><h2>Can Thought Be Controlled?</h2></div>
+  <p class="lead">Now, when we have established all that well within ourselves, and deeply, which is itself part of meditation, we can move on to another question: can thought be controlled?</p>
+  <p>Wherever you go, whether to India, or to a Zen monastery, or to the Tibetan forms of meditation and so on, you'll find they're bringing these practices from Asia to the world.</p>
+  <p>The reason is that people are so ready to believe everything that's offered to them, and think it's something new, when it's as old as the hills.</p>
+  <p>You give up Christianity and then shoulder another burden. It is the same old game.<br>So the question is: can thought be controlled?</p>
+  <p>All the systems of meditation, where a system means practising a particular method day after day, insist that thought must be brought under control, because it's regarded as the factor that disturbs the quiet mind.</p>
+  <p>They say thought must be completely disciplined so that it doesn't keep chattering, wandering or jumping from one subject to another.</p>
+  <p>That's why they believe controlling it requires various systems and methods, like the Zen system, the Tibetan system, the Buddhist system, and the many forms of Hindu meditation.</p>
+  <p>And all of them, in essence, say: "Control your thoughts."</p>
+  <p>Whoever has looked into this, or read about it, or listened to a guru, and I hope the reader has no guru of that kind, knows they all insist on the need to control thought.</p>
+  <p>I've listened to them all, and some of them have come to me and told me a great deal about these things, and even asked me to join them, but I won't get into all that nonsense.</p>
+  <p>They all insist that thought must be brought under control and prevented from moving freely.</p>
+  <p>Among the systems they use is what's called "mantra yoga," and also Transcendental Meditation.</p>
+  <p>They give it an attractive name like "transcendental," and then turn it into something that seems wonderful and extraordinary.</p>
+  <p>As for the word "mantra," its basic meaning is a phrase, formula or word that's believed to help bring about concentration.</p>
+  <p>It could be the word "Coca-Cola" itself!</p>
+  <p>This may sound funny, but it is not; many have fallen into it, and that is exactly what I object to. They have become prisoners of it.</p>
+  <p>It could be the name of that drink, or any other word, or a Sanskrit phrase your guru gives you for a hundred and fifty dollars, and so on.</p>
+  <p>And the idea is that this word will help you concentrate, so that your thought becomes confined to one direction and doesn't wander away.</p>
+  <p>But when you examine the matter, an important question arises: who is the controller?</p>
+  <p>You want to control your thoughts, you think controlling them is important, so you try to master them, but they keep slipping away from you.</p>
+  <p>And you may spend forty years trying to control them.<br>Every moment, thoughts slip away from you and wander off again.<br>So you must ask: who is the controller?<br>And why do we put all this tremendous effort into trying to control?</p>
+  <p>Effort implies conflict, doesn't it?<br>There's a thought that wanders off, then another thought comes and says: "I must control it."<br>And so the battle, the conflict and the tension go on endlessly.<br>So we must inquire into who the controller is.</p>
+  <p>Isn't the controller just another thought?<br>There's a thought that takes up a controlling position and says: "I must control the other thought."<br>That is, one part of thought is trying to control another part of it.</p>
+  <p>This point needs very careful looking, because whoever misses it misses the essence of the subject.</p>
+  <p>Thought has divided itself into two parts: the movement of thinking that keeps wandering, chattering and getting caught up in various things, and then another thought that says: "I mustn't do that, I must control myself."</p>
+  <p>When you try to concentrate on something, you may find your thought has suddenly moved to your shoes or to something else.<br>Then a second thought appears that says: "I mustn't do that, I must control my thought."</p>
+  <blockquote class="pull">But both are thoughts.</blockquote>
+  <p>One of them takes up the position of control and tries to suppress the other.</p>
+  <p>Look at this for yourself, and check whether what I'm saying is true, not because I'm the one saying it, but because you can see its truth directly.</p>
+  <p>Thought says: "It would be wonderful if I could control the wandering thought, so that I could experience nirvana."</p>
+  <p>Or whatever else it wants to experience.<br>And so thought divides itself into the controller and the thing to be controlled.<br>And conflict arises between the controller and the controlled.<br>Then the various systems come along to help you exercise control.</p>
+  <p>Among these systems is to become slowly aware of everything you do, of your breathing and your posture, and so on. But I can't stand all these practices!</p>
+  <p>What really matters is to find out whether there's only thinking, without a thinker separate from the thought, and without a thinker trying to control thought.</p>
+  <p>Maybe you were thinking about your shoelaces, or about God, or about your wife, or about the happiness you hope to find in the future. But all that is still thinking.</p>
+  <p>So we're not interested in how to control thought; we want to understand the whole process of thinking.<br>And when a human being becomes aware of all that, he sees that there is only thinking.</p>
+  <p>There's no separate wandering thought, and then a controller trying to bring it back on track. There's only the process of thinking.</p>
+  <p>Now, if there's only the process of thinking, why should it stop?<br>Thinking is a movement;<br>It's a movement in time, moving from here to there, moving constantly.<br>Thinking is a movement in time.</p>
+  <p>Now, can that movement in time come to an end?<br>That's the question, not how to stop thinking.</p>
+  <p>People, along with the gurus and all those groups, have emphasised the need to control thought when practising meditation.</p>
+  <p>But wherever there's control, there's effort, conflict and suppression.<br>And wherever there's suppression, various kinds of neurotic behaviour and psychological disturbance appear, and so on.</p>
+</section>
+<section class="chapter" id="e8">
+  <div class="chapter-head"><span class="n">8</span><h2>Living Without Control, and the End of Comparison</h2></div>
+  <p class="lead">Is it possible to live without any control at all?<br>That doesn't mean doing whatever you like, or living a life without any limits or responsibility.</p>
+  <p>It is a far more serious question: can you live your daily life, at the psychological level, without any attempt to control yourself?</p>
+  <p>This is an extremely serious question, because we don't know a life in which there's no shadow of control. We only know life based on control.</p>
+  <p>And to understand what living without control means, we must go deeply into the question.<br>Control arises when there's comparison.</p>
+  <p>I compare myself with you, and I want to become like you, because you're cleverer, or brighter, or more spiritual, or whatever.</p>
+  <p>So I want to be like you, and I make an effort to get to what you are.<br>But what happens if there's no comparison at all, at the psychological level?<br>I am what I am.<br>I may not know what I really am, but I am what I am.<br>And there's no inner movement toward something I believe is better or higher than what I am now.</p>
+  <p>So what happens then?<br>When comparison disappears, what happens?<br>Am I dull because I compared myself with you, and you're clever and sharp, so I felt inferior to you?<br>Or is it the word "dull" itself that makes me feel dull?</p>
+  <p>When we go to a museum, we look at different paintings and compare them. We compare Michelangelo with other artists, and say: "This one is better than that one."</p>
+  <p>We've been traditionally taught to do that.</p>
+  <p>And at school, we tell the student: "You must be better than the student who got an A," so he starts making effort after effort to become like him.</p>
+  <p>Then come the university exams and all the other stages of life, all based on comparison and effort to outdo others.</p>
+  <p>But when you understand the movement of measurement and comparison, and realise that it's false at the psychological level, you come back to what actually is.</p>
+  <p>You're face to face with exactly "what is."<br>And you can only face what actually is if you have the energy needed to do so.<br>But that energy has been dissipated by comparison.</p>
+  <p>Now, when you stop dissipating your energy in comparison, you have the energy needed to observe what actually is, and to observe the present moment with all your energy.</p>
+  <p>And then what is there now undergoes a radical transformation.<br>So thought has divided itself into the controller and the controlled, but the truth is that there's only thinking.<br>There's no separate controller, and nothing separate to be controlled; there's only the process of thinking.<br>And thinking is a movement in time, as measurement and moving from one thing to another.<br>So can that movement end naturally and easily, without any attempt to control it?</p>
+  <p>When I make an effort to stop thinking, thinking is still at work.<br>And I've deceived myself by assuming the thinker is different from the thought.<br>So my question is quite different.<br>There's only thinking. The thinker is thought itself. And there's no independent thinker if there's no thinking.</p>
+</section>
+<section class="chapter" id="e9">
+  <div class="chapter-head"><span class="n">9</span><h2>Can the Movement of Time End?</h2></div>
+  <p class="lead">So can the process of thinking, which is a movement in time, come to an end?<br>That is, can time stop?</p>
+  <p>Time is the past.</p>
+  <p>There's no future time existing by itself. What we call future time only appears when the past meets the present, is modified and moves forward.</p>
+  <p>So time is the movement of the past, modified, but still going on moving.<br>And that movement must stop.<br>And that means the whole movement of knowledge, the movement of everything that has become known to us.<br>Unless you're free of that movement, you won't be free to observe the new.</p>
+  <p>But you can't stop it by will, because that means you're trying to control it.<br>And you can't stop it by desire, because desire is part of sensation, thought and image.</p>
+  <p>So how can that movement end naturally? I stress: naturally, easily and happily, so that it ends without your being aware that you've made it end?</p>
+  <p>Have you ever given up something that gives you tremendous pleasure, right there and then, given it up instantly, without hesitation?<br>You can give up pain and sorrow, because you want to forget them and push them away. But I'm not talking about that.<br>I'm talking about something that gives you great pleasure.<br>Have you ever given it up instantly, without any effort?</p>
+  <p>The past is our permanent background.</p>
+  <p>We live in the past. Someone hurt me, or said something to me, and I want this or that, and so on. Almost our whole life is spent by the psyche in the past.</p>
+  <p>The incident that happens now turns into a memory, and the memory becomes part of the past.<br>And so we live in the past.<br>And the question is: can the movement of the past stop?<br>That's what we're asking.</p>
+  <p>It can stop, but not through a trick, nor by repeating something and then saying, "Yes, I've stopped it."<br>That would be utterly absurd.</p>
+  <blockquote class="pull">What's meant is that the past is movement, while the now is the absence of movement.</blockquote>
+  <p>I've just discovered something important.<br>The past is a movement that is modified through the present, and then goes on toward the future. That's the movement of time.<br>The past moves constantly, goes forward, meets the present, and then goes on moving.</p>
+  <p>But the now is the absence of movement, because you don't know what the present moment actually is; all you know is movement.</p>
+  <p>When that movement meets the present moment, there's no movement at all.<br>That which doesn't move is the now.</p>
+  <p>And the now, as I said, is the past when it meets the present and ends there.<br>So when the movement of the past meets the now, in which there's no movement, it stops.<br>And so thought, as a movement of the past, meets the present completely and ends there.</p>
+  <p>We should ponder this, and think about it deeply. Whoever goes into it will understand it.</p>
+</section>
+<section class="chapter" id="e10">
+  <div class="chapter-head"><span class="n">10</span><h2>Seeing Consciousness as a Whole: A Map Without Direction</h2></div>
+  <p class="lead">Now let's move on to the next thing.</p>
+  <p>The mind isn't merely matter, nor the brain alone; it also includes sensation and all the things thought has put into it.</p>
+  <p>And all that makes up consciousness, which in turn contains various unconscious demands and desires.</p>
+  <p>And the question is: can this whole consciousness be observed as a single whole, instead of being examined part by part?</p>
+  <p>Because if we examine each part separately, we'll never finish.<br>Only the observation of the whole allows an end to this process, or opens the way to something else.<br>So can consciousness be observed as a whole, observed totally?</p>
+  <p>Yes, it can, if you actually do it.</p>
+  <p>Suppose you look at a map. When you look at a map, you usually look at it because you want to go to a particular place.</p>
+  <p>And so you have a definite direction.</p>
+  <p>You're in this town, and you want to go to Bern or Zurich or Geneva, say, so your destination is known.</p>
+  <p>But observing the whole map means looking at it without a definite direction.<br>It's simple, and there is no need to make it more complicated than it is.<br>Please, don't make the matter more complicated than it is.<br>In the same way, looking at consciousness as a whole requires that you have no prior direction.<br>And that means having no particular motive.</p>
+  <p>When you look at the map and want to go from here to there, you have a motive driving you to your destination, whether pleasure or some other purpose.</p>
+  <p>And that motive is what determines your direction.</p>
+  <p>But if you want to observe something totally, whether yourself or your consciousness, there must be an absence of motive, and therefore an absence of prior direction.</p>
+  <p>Is that possible, although we've been brought up to do everything with a particular motive?<br>We've been taught that behind every action there must be a purpose.<br>And there's no action without a motive; that's how we've been brought up, that's what religions and societies have taught us.</p>
+  <p>But the moment there's a motive, whether pleasure or avoiding pain, getting a reward or escaping punishment, it sets a particular direction, and so prevents you from seeing the whole.</p>
+  <p>If you understand that and see it directly, there will be no motive.<br>And the question won't be: "How do I get rid of my motives?"<br>You can only see something totally when there's no direction set in advance.<br>And all this is part of meditation.</p>
+  <p>And so there's no centre from which a movement with a particular direction springs.<br>The centre is the motive.<br>If there's no motive, there's no centre, and therefore no direction.</p>
+  <p>And what happens then?</p>
+</section>
+<section class="chapter" id="e11">
+  <div class="chapter-head"><span class="n">11</span><h2>Yoga and the Siddhis</h2></div>
+  <p class="lead">There are also all the systems of yoga.<br>Do you know what the word "yoga" means?</p>
+  <p>It's said that the word "yoga" means union or joining, but I think, and I've been told so too, that this meaning isn't quite right.</p>
+  <p>The word originally had a completely different meaning, as I thought.<br>Which is complete harmony.</p>
+  <p>Complete harmony isn't achieved by doing exercises or controlling the breath; rather, your very way of living must be harmonious.</p>
+  <p>And you can only achieve that when you understand the nature of your relationships with others.<br>There is another thing I should deal with.<br>When you live this way day after day, you may acquire certain powers.</p>
+  <p>In Sanskrit these powers are called "siddhis," and they're said to include the ability to see into things clairvoyantly, because your body becomes extremely sensitive, and your mind becomes very clear, and you may feel you can read other people's thoughts, or acquire powers you didn't have before, like telepathy and so on.</p>
+  <p>I have been through all these things before.<br>But if you become a prisoner of these powers, you can't go any further.</p>
+  <p>If you get caught up in these childish things, and they really are childish, your body may become so sensitive that you can almost hear what people are saying or thinking.</p>
+  <p>And these powers may give you a feeling of power and distinction.<br>But if these powers become important to you, you've missed the whole essence of the matter.</p>
+  <p>And people now talk, unfortunately, about things like "kundalini," although they know nothing real about it. And I won't go into that here.</p>
+</section>
+<section class="chapter" id="e12">
+  <div class="chapter-head"><span class="n">12</span><h2>The Silent Mind</h2></div>
+  <p class="lead">Now the mind is ready.<br>It's ready to observe without any inner movement.</p>
+  <p>Because you have understood what freedom from authority means, and all the other things discussed earlier, which there is no need to repeat here.</p>
+  <p>You've become able to stand completely alone, and to be a light to yourselves, without any interference imposing itself on you.</p>
+  <p>And so the mind and the brain no longer record everything in the usual way.</p>
+  <p>And so the mind becomes free of any movement.<br>And therefore it becomes silent.<br>Not a silence imposed by force, nor an artificial silence we train ourselves into; that has no meaning.<br>But a silence that doesn't come from trying to stop something or quieten the noise.</p>
+  <p>It's a natural result of daily life when it's lived with awareness.<br>And daily life has its own beauty, and that beauty is part of the absence of movement I am speaking of.</p>
+</section>
+<section class="chapter" id="e13">
+  <div class="chapter-head"><span class="n">13</span><h2>What Is Beauty?</h2></div>
+  <p class="lead">Here I must speak of beauty.</p>
+  <p>What is beauty?</p>
+  <p>Is beauty the description we give a thing? Or is it the thing we see, with its proportion, its height, its depth and its shadows? Is it a painting by Michelangelo or one of his statues?</p>
+  <p>What is beauty?</p>
+  <p>Is it in the eye of the beholder? Or in the thing before us? Or is it neither in the eye nor in the outer thing?</p>
+  <p>We say this thing is beautiful, or this architecture is beautiful, or this cathedral is magnificent, or this painting is enchanting.</p>
+  <p>And so we think beauty is there, outside.<br>But is it in the eye of the beholder?</p>
+  <p>Perhaps because the beholder's eye has been trained to see things, and has become able to distinguish between what it considers ugly and what it sees as well proportioned, between what it sees as deep or elegant and what it sees as lacking depth or style.</p>
+  <p>So is beauty in the outer thing? Or in the eye of the beholder? Or does it have nothing to do with the eye or the thing outside?</p>
+  <blockquote class="pull">Beauty is there when you are not there.</blockquote>
+  <p>When you look at something, you are the one looking, you are the one judging it, you are the one saying: "Its proportion is wonderful," or "It's amazingly still," or "It's deep and has an extraordinary grandeur."</p>
+  <p>But all that springs from your own view, from the way you give the thing its importance.<br>But when you're not there as a centre of judging and evaluating, there is beauty.<br>And when that beauty is there, there may be no expression of it at all.</p>
+  <p>But we want to express it, because through that we seek to fulfil ourselves.<br>So we say: "I'm an artist, I'm a great artist," and so on.</p>
+  <p>And so perhaps beauty is there when you, as a human being burdened with all your suffering, anxiety, pain and sorrow, are not there at the centre of the experience.</p>
+  <p>Then there is beauty.<br>And so the mind becomes still, free of movement.</p>
+</section>
+<section class="chapter" id="e14">
+  <div class="chapter-head"><span class="n">14</span><h2>The Sacred</h2></div>
+  <p class="lead">Then comes the question: what happens next?<br>We're inquiring into this, and, so to speak, we're no longer inquiring, because all inquiry and all movement have stopped.<br>So what is there when movement stops?<br>Is compassion itself a movement?</p>
+  <p>A person may feel sympathy, and go to help others, or travel to an Indian village or another village to help people because he feels compassion for them.</p>
+  <p>But all these things may be different forms of emotion, affection and feeling.</p>
+  <p>And the question here is about something much deeper and more important: when there's no movement, what happens? And what is there?</p>
+  <p>Is what's there compassion? Or is there something beyond all that?<br>Is there something wholly original, and therefore sacred?<br>For we don't really know what the sacred is.<br>We consider the images and symbols we believe in to be sacred, whether we go to a church, a temple or a mosque.</p>
+  <p>But those images and symbols have been created by thought.<br>And thought is a material process, and a constant movement.</p>
+  <p>So when there's no movement, is there something wholly original, something untouched by humanity, untouched by the whole movement of thought?</p>
+  <blockquote class="pull">Perhaps that is the real origin, and the most sacred.</blockquote>
+  <p>This is real meditation.<br>To begin at the very beginning, without knowing in advance.</p>
+  <p>But if you begin from a state of not knowing, you may arrive at absolute truth, that is, at certainty.</p>
+  <p>We began by saying that we must explore ourselves, and that ourselves are made up of what we know, so we must empty the mind of the known.</p>
+  <p>And from that emptiness, everything else flows naturally.</p>
+  <blockquote class="pull">And when that most sacred thing is there, which is the whole movement of meditation, life takes on a completely different significance.</blockquote>
+  <p>And life is never superficial again.</p>
+  <p>You may have ten suits or a house, but if that thing is present in your life, nothing else will have the same importance.</p>
+</section>
+<section class="chapter" id="e15">
+  <div class="chapter-head"><span class="n">15</span><h2>Motive and Right Livelihood</h2></div>
+  <p class="lead">Someone may ask: are motive and movement necessary in business? And if so, how does one choose the right motive?</p>
+  <p>The question, at heart, is: what is the right motive, or the sound motive, for earning a livelihood? That is: what work should one do to earn one's living?</p>
+  <p>I am not asking about the work that best suits your comfort, nor the most profitable, enjoyable or materially useful. The question is: what is the right work a human being should do to earn his livelihood? And how does he find out?</p>
+  <p>Before you ask, "What is right livelihood?", you must first understand the meaning of the word "right."<br>What does it mean for something to be right?<br>The word "right" means accurate, sound, corresponding to what actually is.<br>For it to be accurate.</p>
+  <p>And an action can't be accurate if you're doing it for profit or pleasure alone.<br>So what is right?<br>That too is an extremely complex question.<br>Everything thought has created is part of reality.</p>
+  <p>The tent man has made with thought is an existing reality.<br>And the tree, which thought didn't make, is also an existing reality.<br>Even illusions are an existing reality.</p>
+  <p>The illusions a person carries inside him, his imaginings and so on, all exist as psychological facts.</p>
+  <p>But action that springs from that illusion may be neurotic action, and that too is a reality that actually happens.<br>So when you ask about right livelihood, you must first understand what reality is.<br>Reality is not truth, and I will come back to that at the end.<br>So there is reality.</p>
+  <p>And the question is: what is right action within this reality?<br>How will you find out what is right?<br>You must find it out for yourself, not wait for someone else to tell you.</p>
+  <p>For if I tell you, "Go and do this," you may regret it later, and end up cursing me for having followed my advice.</p>
+  <p>So you must find out for yourself what accurate and right action is, and what the right livelihood is within the world of reality.</p>
+  <p>And reality includes illusions too, so don't try to escape from them or run away from them.<br>Illusion and the activities that spring from it, like belief, are part of reality.</p>
+  <p>Believing in the nation or nationalism, and all such things, may be a form of psychological reality that carries an illusion within it.</p>
+  <p>So if we take all that as part of reality, what is the right action to take?<br>Who will tell you that?<br>No one, of course.</p>
+  <p>When you see reality without your seeing being mixed up with illusions, while realising that illusions themselves exist as psychological facts, that very perception of reality is what we call intelligence.</p>
+  <p>Then your perception is no longer a mixture of reality, illusion and all the other factors that distort your seeing.</p>
+  <p>There's the reality of the tree, the reality of the tent, and there's also the reality thought has created, including visions, illusions and imaginings.</p>
+  <p>And when you see all that as it is, the very act of seeing is intelligence.<br>And it's that intelligence which determines what you'll do.</p>
+  <p>Intelligence is the capacity to perceive what actually is, and what is not.<br>To see what is, and understand the truth of what is.</p>
+  <p>And that means not being psychologically caught up in your inner desires and demands, because they may all be forms of illusion.</p>
+  <p>To see all that clearly is intelligence.<br>And that intelligence will operate wherever you are.<br>And so it is what will tell you what you should do.</p>
+</section>
+<section class="chapter" id="e16">
+  <div class="chapter-head"><span class="n">16</span><h2>Reality and Truth</h2></div>
+  <p class="lead">Now, what about truth?<br>We have talked about reality.<br>But what is truth?<br>Certainly truth is not reality.<br>So there is truth.</p>
+  <p>This subject needs to be gone into at greater length than these lines allow.<br>There is truth, and the question is: what is the relationship between reality and truth?<br>The relationship between them is this intelligence.<br>The intelligence that perceives the whole of reality doesn't turn that reality into truth, nor confuse the two.</p>
+  <p class="final">Then truth operates on reality through intelligence.</p>
+  <div class="final-mark" aria-hidden="true">
+    <svg viewBox="0 0 44 44">
+      <circle class="ring" cx="22" cy="22" r="21" fill="none" stroke-width="1"/>
+      <circle class="dot" cx="22" cy="22" r="2.5"/>
+    </svg>
+  </div>
+</section>
+</main>
+</div>
+
+
+<footer data-en="To Be a Light to Oneself">أن تكون نورًا لنفسك</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="العودة إلى الأعلى">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+    <path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/>
+  </svg>
+</button>
+
+<script>
+/* Reading progress bar + back-to-top button */
+(function () {
+  var bar = document.getElementById('progressBar');
+  var toTop = document.getElementById('toTop');
+  var ticking = false;
+
+  function update() {
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight - window.innerHeight;
+    var ratio = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    bar.style.width = (ratio * 100) + '%';
+    toTop.classList.toggle('show', window.scrollY > window.innerHeight * 0.9);
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  update();
+})();
+
+/* Text size: small/large "ع" buttons, remembered on this device */
+(function () {
+  var steps = [0.85, 0.92, 1, 1.1, 1.2, 1.32, 1.45];
+  var KEY = 'reading-text-scale';
+  var root = document.documentElement;
+  var smaller = document.getElementById('textSmaller');
+  var larger = document.getElementById('textLarger');
+  var level = document.getElementById('textLevel');
+  var hideTimer;
+  var i = 2;
+
+  try {
+    var saved = parseInt(localStorage.getItem(KEY), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < steps.length) i = saved;
+  } catch (e) {}
+
+  function apply(showLevel) {
+    // keep the reader on the same passage while the text reflows
+    var anchor = window.scrollY / Math.max(document.documentElement.scrollHeight, 1);
+    root.style.setProperty('--scale', steps[i]);
+    window.scrollTo(0, anchor * document.documentElement.scrollHeight);
+
+    smaller.disabled = i === 0;
+    larger.disabled = i === steps.length - 1;
+    try { localStorage.setItem(KEY, i); } catch (e) {}
+
+    if (showLevel) {
+      level.textContent = Math.round(steps[i] * 100) + '٪';
+      level.classList.add('on');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { level.classList.remove('on'); }, 1200);
+    }
+  }
+
+  smaller.addEventListener('click', function () { if (i > 0) { i--; apply(true); } });
+  larger.addEventListener('click', function () { if (i < steps.length - 1) { i++; apply(true); } });
+
+  apply(false);
+})();
+
+/* Bold / regular toggle, remembered on this device */
+(function () {
+  var KEY = 'reading-text-bold';
+  var btn = document.getElementById('textBold');
+  var root = document.documentElement;
+
+  function set(on) {
+    root.classList.toggle('is-bold', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'نص عادي' : 'نص عريض');
+    try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+  }
+
+  var start = false;
+  try { start = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  set(start);
+
+  btn.addEventListener('click', function () {
+    set(!root.classList.contains('is-bold'));
+  });
+})();
+
+/* Arabic / English toggle, keeps your place, remembered on this device */
+(function () {
+  var KEY = 'reading-lang';
+  var root = document.documentElement;
+  var ar = document.getElementById('langAr');
+  var en = document.getElementById('langEn');
+  var btn = document.getElementById('langToggle');
+
+  function current() { return en.hidden ? ar : en; }
+
+  // which chapter is on screen, and how far into it
+  function position() {
+    var secs = current().querySelectorAll('section.chapter');
+    var y = window.scrollY + window.innerHeight * 0.3;
+    for (var i = secs.length - 1; i >= 0; i--) {
+      var top = secs[i].getBoundingClientRect().top + window.scrollY;
+      if (y >= top) return { i: i, f: (y - top) / Math.max(secs[i].offsetHeight, 1) };
+    }
+    return null;
+  }
+
+  function set(lang, keepPlace) {
+    var pos = keepPlace ? position() : null;
+    var isEn = lang === 'en';
+    ar.hidden = isEn;
+    en.hidden = !isEn;
+    root.lang = lang;
+    root.dir = isEn ? 'ltr' : 'rtl';
+    btn.innerHTML = isEn ? '<span class="ar-glyph">ع</span>' : 'EN';
+    btn.setAttribute('aria-label', isEn ? 'النسخة العربية' : 'English version');
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+    document.querySelectorAll('[data-en]').forEach(function (el) { if (el.dataset.ar === undefined) el.dataset.ar = el.textContent; el.textContent = isEn ? el.dataset.en : el.dataset.ar; });
+
+    if (pos) {
+      var target = current().querySelectorAll('section.chapter')[pos.i];
+      var top = target.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top + pos.f * target.offsetHeight - window.innerHeight * 0.3, behavior: 'instant' });
+    } else if (keepPlace) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    window.dispatchEvent(new Event('scroll'));
+  }
+
+  var start = 'ar';
+  try { if (localStorage.getItem(KEY) === 'en') start = 'en'; } catch (e) {}
+  set(start, false);
+
+  btn.addEventListener('click', function () {
+    set(en.hidden ? 'en' : 'ar', true);
+  });
+})();
+</script>
+
+</body>
+</html>
