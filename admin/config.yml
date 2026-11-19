@@ -1,7 +1,7 @@
 # ⚠️ السطر الوحيد اللي محتاج تغيّره: اكتب اسمك على GitHub واسم المستودع
 backend:
   name: github
-  repo: GITHUB_USERNAME/alaaabed
+  repo: alaakhedr153-commits/alaablog
   branch: main
 
 media_folder: content/images
