@@ -1,12 +1,389 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>لوحة التحكم — علاء عابد</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>علاء عابد — مجلة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa+Ink:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE9DF;
+    --paper-2:#E6DED0;
+    --ink:#141210;
+    --muted:#6E675E;
+    --red:#C0371F;
+    --rule:#1a1a1a;
+    --hair:#CFC6B7;
+    --max:1420px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Amiri",serif;
+    font-size:19px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{ /* subtle paper grain */
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0 0.33  0 0 0 .18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 60px;position:relative;z-index:1}
+  .ui{font-family:"Noto Naskh Arabic",serif}
+
+  /* ========== MASTHEAD ========== */
+  .masthead{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:30px;padding-top:6px}
+  .mh-side{font-size:20px;line-height:1.95;padding-top:4px}
+  .mh-side .red{color:var(--red)}
+  .mh-side.left{text-align:left}
+  .logo{
+    font-family:"Aref Ruqaa Ink",serif;font-weight:700;
+    font-size:clamp(90px,13vw,210px);line-height:1;
+    letter-spacing:-2px;text-align:center;margin-top:-10px;padding-bottom:18px;
+  }
+
+  /* ========== NAV ========== */
+  .nav{
+    min-height:64px;
+    border-top:4px double var(--rule);
+    border-bottom:4px double var(--rule);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 0;margin-top:4px;
+  }
+  .nav ul{list-style:none;display:flex;gap:44px;font-size:22px}
+  .nav ul a{position:relative;padding:4px 0;transition:color .2s}
+  .nav ul a::after{content:"";position:absolute;right:0;bottom:-2px;height:1.5px;width:0;background:var(--red);transition:width .25s}
+  .nav ul a:hover{color:var(--red)}
+  .nav ul a:hover::after{width:100%}
+  .btn-sub{
+    background:var(--ink);color:var(--paper);font-family:"Amiri",serif;font-weight:700;
+    font-size:21px;padding:12px 30px;border:none;cursor:pointer;transition:background .2s
+  }
+  .btn-sub:hover{background:var(--red)}
+  .nav ul a.active{color:var(--red)}
+  .nav ul a.active::after{width:100%}
+  .empty{color:var(--muted);font-size:20px;padding:40px 0;border-bottom:1px solid var(--hair)}
+  .panel[hidden]{display:none}
+  .contact{padding:40px 0;border-bottom:1px solid var(--hair)}
+  .c-lead{font-size:22px;margin-bottom:18px}
+  .c-mail{display:inline-block;font-family:"Noto Naskh Arabic",serif;font-size:clamp(22px,3vw,34px);color:var(--red);border-bottom:1.5px solid var(--red);padding-bottom:2px;word-break:break-all}
+  .c-copy{display:block;margin-top:26px;background:var(--ink);color:var(--paper);border:none;font-family:"Amiri",serif;font-size:19px;padding:10px 26px;cursor:pointer}
+  .c-copy:hover{background:var(--red)}
+  .c-msg{display:block;margin-top:10px;color:var(--muted);font-size:16px;min-height:24px}
+  .nav ul{align-items:center}
+  .lang-toggle{background:none;border:1px solid var(--ink);color:var(--ink);font-family:"Noto Naskh Arabic",serif;font-size:16px;padding:3px 14px;cursor:pointer;line-height:1.6}
+  .lang-toggle:hover{border-color:var(--red);color:var(--red)}
+  html[lang="en"] body{font-family:"Amiri",Georgia,serif}
+  html[lang="en"] .logo,html[lang="en"] .foot .logo-sm,html[lang="en"] .quote-card blockquote,html[lang="en"] .newsletter h2{font-family:"Amiri",Georgia,serif;font-weight:700;letter-spacing:0}
+  html[lang="en"] .logo{font-size:clamp(70px,10vw,160px);padding-top:20px}
+  html[lang="en"] .toc .p{text-align:right}
+  .burger{display:none;background:none;border:1px solid var(--ink);font-size:20px;padding:4px 12px;cursor:pointer;font-family:inherit}
+
+  /* ========== HERO ========== */
+  .hero{min-height:60px}
+  .tag{display:inline-flex;align-items:center;gap:10px;color:var(--red);font-size:21px;margin-bottom:26px}
+  .tag svg{width:14px;height:14px}
+  .hero h1{font-size:clamp(46px,6vw,92px);line-height:1.3;font-weight:700;margin-bottom:30px}
+  .hero .dek{font-size:23px;color:#3a3530;max-width:560px;margin-bottom:34px}
+  .byline{font-size:18px;color:var(--muted);display:flex;gap:18px;align-items:center}
+  .byline b{color:var(--ink);font-weight:700}
+  .byline .dot{width:5px;height:5px;background:var(--red);border-radius:50%}
+  .read-more{display:inline-block;margin-top:34px;font-size:20px;border-bottom:1.5px solid var(--ink);padding-bottom:2px}
+  .read-more:hover{color:var(--red);border-color:var(--red)}
+  .art{border:1px solid var(--ink);background:#D8CFC0;aspect-ratio:1/1;position:relative;overflow:hidden}
+  .art svg{width:100%;height:100%;display:block}
+
+  /* ========== SECTION HEAD ========== */
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:4px double var(--rule);padding-bottom:16px;margin-bottom:6px}
+  .sec-head h2{font-size:44px;font-weight:700;line-height:1.2}
+  .sec-head .meta{color:var(--muted);font-size:18px}
+
+  /* ========== TOC + QUOTE ========== */
+  .issue{display:grid;grid-template-columns:1.6fr 1fr;gap:56px;padding:60px 0 100px;align-items:start}
+  .toc{list-style:none}
+  .toc li{border-bottom:1px solid var(--hair)}
+  .toc a{display:flex;align-items:baseline;gap:18px;padding:20px 0;transition:background .2s}
+  .toc .n{color:var(--muted);font-size:17px;width:22px;flex:none}
+  .toc .t{font-size:25px;font-weight:700;white-space:nowrap;transition:color .2s}
+  .toc .badge{font-family:"Noto Naskh Arabic",serif;font-size:12px;color:var(--red);border:1px solid var(--red);padding:2px 9px;white-space:nowrap;align-self:center}
+  .toc .au{color:var(--muted);font-size:17px;white-space:nowrap}
+  .toc .dots{flex:1;border-bottom:2px dotted #8d857a;transform:translateY(-6px);min-width:30px}
+  .toc .p{font-size:25px;font-weight:700;min-width:36px;text-align:left}
+  .toc li.first .t,.toc li.first .p{color:var(--red)}
+  .toc a:hover .t{color:var(--red)}
+
+  .quote-card{background:var(--red);color:#fff;padding:34px 40px 60px;position:sticky;top:30px;min-height:520px}
+  .quote-card .label{display:inline-block;border:1px solid rgba(255,255,255,.85);font-family:"Noto Naskh Arabic",serif;font-size:13px;padding:6px 14px;margin-bottom:46px}
+  .quote-card blockquote{font-family:"Aref Ruqaa Ink",serif;font-size:clamp(30px,2.6vw,42px);line-height:1.75}
+  .quote-card .who{margin-top:44px;font-size:19px;border-top:1px solid rgba(255,255,255,.4);padding-top:18px;opacity:.95}
+
+  /* ========== ARTICLES GRID ========== */
+  .grid-sec{padding:20px 0 100px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink)}
+  .card{padding:34px 30px 40px;border-left:1px solid var(--hair)}
+  .card:last-child{border-left:none}
+  .card .cat{color:var(--red);font-size:16px;margin-bottom:12px;display:block}
+  .card h3{font-size:30px;line-height:1.45;margin-bottom:14px}
+  .card p{color:#3a3530;font-size:18.5px}
+  .card .au{margin-top:22px;font-size:16px;color:var(--muted)}
+  .card:hover h3{color:var(--red)}
+  .mini-art{height:150px;border:1px solid var(--ink);margin-bottom:24px;background:var(--paper-2)}
+  .mini-art svg{width:100%;height:100%;display:block}
+
+  /* ========== NEWSLETTER ========== */
+  .newsletter{border-top:4px double var(--rule);border-bottom:4px double var(--rule);padding:60px 0;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:80px}
+  .newsletter h2{font-family:"Aref Ruqaa Ink",serif;font-size:56px;line-height:1.3}
+  .newsletter p{color:var(--muted);font-size:19px;margin-top:10px}
+  .nl-form{display:flex;border:1.5px solid var(--ink)}
+  .nl-form input{flex:1;border:none;background:transparent;padding:16px 18px;font-family:"Amiri",serif;font-size:19px;color:var(--ink);outline:none}
+  .nl-form button{border-radius:0}
+  .nl-msg{margin-top:12px;color:var(--red);font-size:17px;min-height:26px}
+
+  /* ========== FOOTER ========== */
+  footer{background:var(--ink);color:var(--paper);padding:70px 0 40px;position:relative;z-index:1}
+  .foot{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:50px}
+  .foot .logo-sm{font-family:"Aref Ruqaa Ink",serif;font-weight:700;font-size:64px;line-height:1.1}
+  .foot p{color:#B8AFA2;font-size:17px;margin-top:12px}
+  .foot h4{font-size:19px;color:var(--red);margin-bottom:14px;font-weight:700}
+  .foot ul{list-style:none;font-size:18px;line-height:2.1}
+  .foot ul a:hover{color:var(--red)}
+  .copy{border-top:1px solid #3a3530;margin-top:50px;padding-top:24px;display:flex;justify-content:space-between;color:#8d857a;font-size:15px}
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width:1100px){
+    .wrap{padding:0 32px}
+    .hero{grid-template-columns:1fr;gap:50px}
+    .issue{grid-template-columns:1fr}
+    .quote-card{position:static;min-height:auto}
+    .cards{grid-template-columns:1fr 1fr}
+    .foot{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:760px){
+    body{font-size:17px}
+    .wrap{padding:0 20px}
+    .masthead{grid-template-columns:1fr;text-align:center;gap:0}
+    .mh-side{display:none}
+    .logo{padding:16px 0 12px}
+    .nav ul{gap:22px;font-size:19px;flex-wrap:wrap;justify-content:center;width:100%}
+    .nav{position:relative}
+    .burger{display:block}
+    .hero{padding:50px 0 60px}
+    .toc .au,.toc .badge{display:none}
+    .toc .t{white-space:normal;font-size:21px}
+    .cards{grid-template-columns:1fr}
+    .card{border-left:none;border-bottom:1px solid var(--hair);padding:30px 0}
+    .newsletter{grid-template-columns:1fr;gap:30px}
+    .newsletter h2{font-size:42px}
+    .foot{grid-template-columns:1fr}
+    .copy{flex-direction:column;gap:8px}
+  }
+</style>
 </head>
 <body>
-<script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+
+<!-- =================== HEADER =================== -->
+<header class="wrap">
+  <div class="masthead">
+    <!-- الجانب الأيمن -->
+    <div class="mh-side right">
+      <!-- النص اليمين هنا -->
+    </div>
+
+    <!-- اسم الموقع -->
+    <a href="#articles" class="logo" data-en="Alaa Abed">علاء عابد</a>
+
+    <!-- الجانب الأيسر -->
+    <div class="mh-side left">
+      <!-- النص الشمال هنا -->
+    </div>
+  </div>
+
+  <nav class="nav">
+    <ul id="menu">
+      <li><a href="#contact" data-tab="contact" data-en="Ask Me">اسأل عليا</a></li>
+      <li><button type="button" class="lang-toggle" id="langToggle" aria-label="English version">EN</button></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <!-- =================== HERO / المادة الرئيسية =================== -->
+  <section class="wrap hero">
+    <!-- المادة الرئيسية هنا -->
+  </section>
+
+  <!-- =================== فهرس العدد =================== -->
+  <section class="wrap issue">
+    <div class="panels">
+    <div class="panel" id="panel-articles">
+      <div class="sec-head">
+        <h2 data-en="Articles">مقالات</h2>
+        <span class="meta" data-en="Pages">عدد الصفحات</span>
+      </div>
+      <ol class="toc">
+        <li class="first"><a href="articles/im-indian.html"><span class="n" data-en="1">١</span><span class="t" data-en="No, I&#x27;m Indian!">لا، أنا هندي!</span><span class="dots"></span><span class="p" data-en="5">٥</span></a></li>
+        <li><a href="articles/vanity.html"><span class="n" data-en="2">٢</span><span class="t" data-en="Now That&#x27;s a Cautionary Tale">أما قصة عبرة بصحيح</span><span class="dots"></span><span class="p" data-en="12">١٢</span></a></li>
+        <li><a href="articles/alex-abudhabi.html"><span class="n" data-en="3">٣</span><span class="t" data-en="Between Alexandria and Abu Dhabi">بين الإسكندرية وأبوظبي</span><span class="dots"></span><span class="p" data-en="34">٣٤</span></a></li>
+        <li><a href="articles/longing-to-be-loved.html"><span class="n" data-en="4">٤</span><span class="t" data-en="The Longing to Be Loved">التوق إلى أن تكون محبوبًا</span><span class="dots"></span><span class="p" data-en="52">٥٢</span></a></li>
+        <li><a href="articles/krishnamurti-light.html"><span class="n" data-en="5">٥</span><span class="t" data-en="To Be a Light to Oneself">أن تكون نورًا لنفسك</span><span class="dots"></span><span class="p" data-en="68">٦٨</span></a></li>
+        <li><a href="articles/osho-fear.html"><span class="n" data-en="6">٦</span><span class="t" data-en="How Best to Deal with Fear?">كيف نتعامل مع الخوف؟</span><span class="dots"></span><span class="p" data-en="81">٨١</span></a></li>
+        <li><a href="articles/fragility-of-life.html"><span class="n" data-en="7">٧</span><span class="t" data-en="The Fragility of Life">هشاشة الحياة</span><span class="dots"></span><span class="p" data-en="96">٩٦</span></a></li>
+        <li><a href="articles/life-is-long.html"><span class="n" data-en="8">٨</span><span class="t" data-en="Life Is Long">الحياة طويلة</span><span class="dots"></span><span class="p" data-en="104">١٠٤</span></a></li>
+</ol>
+    </div>
+    <div class="panel" id="panel-contact" hidden>
+      <div class="sec-head"><h2 data-en="Ask Me">اسأل عليا</h2></div>
+      <div class="contact">
+        <p class="c-lead" data-en="For any question or message, reach me by email:">لأي سؤال أو رسالة، تواصل معي على البريد:</p>
+        <a class="c-mail" href="mailto:alaakhedr153@gmail.com" dir="ltr">alaakhedr153@gmail.com</a>
+        <button type="button" class="c-copy" id="copyMail" data-en="Copy email">نسخ البريد</button>
+        <span class="c-msg" id="copyMsg"></span>
+      </div>
+    </div>
+    </div>
+
+    <aside class="quote-card">
+      <span class="label" data-en="Quote of the Issue">اقتباس العدد</span>
+      <blockquote data-en="“A short quote&lt;br&gt;from your texts&lt;br&gt;goes here.”">«هنا يوضع اقتباس قصير<br>من نصوصك<br>في ثلاثة أسطر.»</blockquote>
+      <div class="who" data-en="— Name of the quoted author">— اسم صاحب الاقتباس</div>
+    </aside>
+  </section>
+
+  <!-- =================== مقالات =================== -->
+  <section class="wrap grid-sec">
+    <div class="sec-head"><h2 data-en="From the Sections">من الأقسام</h2><a href="#" class="meta" data-en="View all →">عرض الكل ←</a></div>
+    <div class="cards">
+      <article class="card">
+        <div class="mini-art"><svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice"><rect width="300" height="150" fill="#E6DED0"/><circle cx="150" cy="150" r="80" fill="#141210"/><circle cx="150" cy="150" r="46" fill="#C0371F"/></svg></div>
+        <span class="cat" data-en="Section">القسم</span>
+        <h3 data-en="Article title here">عنوان المقال هنا</h3>
+        <p data-en="A line or two from the article’s opening will go here later.">سطر أو سطران من مقدمة المقال يوضعان هنا لاحقًا.</p>
+        <div class="au" data-en="Author name">اسم الكاتب</div>
+      </article>
+      <article class="card">
+        <div class="mini-art"><svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice"><rect width="300" height="150" fill="#C0371F"/><path d="M0 150 L80 60 L150 120 L220 40 L300 150Z" fill="#141210"/><circle cx="235" cy="38" r="14" fill="#EFE9DF"/></svg></div>
+        <span class="cat" data-en="Section">القسم</span>
+        <h3 data-en="Article title here">عنوان المقال هنا</h3>
+        <p data-en="A line or two from the article’s opening will go here later.">سطر أو سطران من مقدمة المقال يوضعان هنا لاحقًا.</p>
+        <div class="au" data-en="Author name">اسم الكاتب</div>
+      </article>
+      <article class="card">
+        <div class="mini-art"><svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice"><rect width="300" height="150" fill="#141210"/><g fill="none" stroke="#EFE9DF" stroke-width="1.5"><circle cx="150" cy="75" r="20"/><circle cx="150" cy="75" r="38"/><circle cx="150" cy="75" r="56"/></g><circle cx="150" cy="75" r="9" fill="#C0371F"/></svg></div>
+        <span class="cat" data-en="Section">القسم</span>
+        <h3 data-en="Article title here">عنوان المقال هنا</h3>
+        <p data-en="A line or two from the article’s opening will go here later.">سطر أو سطران من مقدمة المقال يوضعان هنا لاحقًا.</p>
+        <div class="au" data-en="Author name">اسم الكاتب</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- =================== اشتراك =================== -->
+  <section class="wrap" id="newsletter">
+    <div class="newsletter">
+      <div>
+        <h2 data-en="Subscribe headline">عنوان دعوة الاشتراك</h2>
+        <p data-en="A short line on what subscribers will receive.">جملة قصيرة تشرح ما سيصل للمشترك.</p>
+      </div>
+      <div>
+        <form class="nl-form" id="nlForm">
+          <input type="email" placeholder="بريدك الإلكتروني" data-en-ph="Your email" required>
+          <button class="btn-sub" type="submit" data-en="Subscribe">اشترك</button>
+        </form>
+        <div class="nl-msg" id="nlMsg"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- =================== FOOTER =================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <div class="logo-sm" data-en="Alaa Abed">علاء عابد</div>
+        <p data-en="A short line introducing the site.">سطر تعريفي قصير بالموقع.</p>
+      </div>
+      <div><h4 data-en="Sections">الأقسام</h4><ul><li><a href="#" data-en="Section one">القسم الأول</a></li><li><a href="#" data-en="Section two">القسم الثاني</a></li><li><a href="#" data-en="Section three">القسم الثالث</a></li></ul></div>
+      <div><h4 data-en="The Magazine">المجلة</h4><ul><li><a href="#" data-en="About">عن الموقع</a></li><li><a href="#" data-en="Archive">الأرشيف</a></li><li><a href="#" data-en="Contact">تواصل</a></li></ul></div>
+      <div><h4 data-en="Follow">تابعنا</h4><ul><li><a href="#" data-en="Link 1">رابط ١</a></li><li><a href="#" data-en="Link 2">رابط ٢</a></li><li><a href="#" data-en="Link 3">رابط ٣</a></li></ul></div>
+    </div>
+    <div class="copy"><span data-en="© 2026 Alaa Abed">© ٢٠٢٦ علاء عابد</span><span data-en="All rights reserved">جميع الحقوق محفوظة</span></div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('nlForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    document.getElementById('nlMsg').textContent=(window.__isEn&&__isEn())?'Thank you — (demo form, nothing was sent)':'شكرًا — (نموذج تجريبي، لم يُرسل شيء بعد)';
+    e.target.reset();
+  });
+  (function(){
+    var tabs=['articles','contact'];
+    function show(){
+      var h=(location.hash||'').slice(1); if(tabs.indexOf(h)<0) h='articles';
+      tabs.forEach(function(t){
+        document.getElementById('panel-'+t).hidden = t!==h;
+        var a=document.querySelector('.nav a[data-tab="'+t+'"]'); if(a) a.classList.toggle('active', t===h);
+      });
+    }
+    window.addEventListener('hashchange',function(){show(); document.querySelector('.issue').scrollIntoView({behavior:'smooth'});});
+    show();
+  })();
+  document.getElementById('copyMail').addEventListener('click',function(){
+    var m=document.getElementById('copyMsg');
+    try{navigator.clipboard.writeText('alaakhedr153@gmail.com').then(function(){m.textContent=window.__isEn&&__isEn()?'Email copied':'تم نسخ البريد';},function(){m.textContent=window.__isEn&&__isEn()?'Please copy the email above manually':'انسخ البريد يدويًا من الأعلى';});}catch(e){m.textContent=window.__isEn&&__isEn()?'Please copy the email above manually':'انسخ البريد يدويًا من الأعلى';}
+  });
+  (function(){
+    var KEY='reading-lang', root=document.documentElement, btn=document.getElementById('langToggle');
+    function set(l){
+      var en=l==='en'; root.lang=en?'en':'ar'; root.dir=en?'ltr':'rtl';
+      document.querySelectorAll('[data-en]').forEach(function(el){ if(el.dataset.ar===undefined) el.dataset.ar=el.innerHTML; el.innerHTML= en? el.dataset.en : el.dataset.ar; });
+      document.querySelectorAll('[data-en-ph]').forEach(function(el){ if(el.dataset.arPh===undefined) el.dataset.arPh=el.placeholder; el.placeholder= en? el.dataset.enPh : el.dataset.arPh; });
+      btn.innerHTML = en ? 'ع' : 'EN'; btn.setAttribute('aria-label', en ? 'النسخة العربية' : 'English version');
+      document.title = en ? 'Alaa Abed — Magazine' : 'علاء عابد — مجلة';
+      try{localStorage.setItem(KEY,l);}catch(e){}
+    }
+    window.__isEn=function(){return root.lang==='en';};
+    var start='ar'; try{ if(localStorage.getItem(KEY)==='en') start='en'; }catch(e){}
+    set(start);
+    btn.addEventListener('click',function(){ set(root.lang==='en'?'ar':'en'); });
+  })();
+</script>
+<script>
+/* مقالات لوحة التحكم: تُضاف تلقائيًا أعلى القائمة (الأحدث أولًا) */
+(function(){
+  var AR='٠١٢٣٤٥٦٧٨٩';
+  function arNum(n){return String(n).replace(/\d/g,function(d){return AR[d];});}
+  function esc(t){return String(t||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function put(el,ar,en){el.dataset.ar=ar; el.dataset.en=en; el.innerHTML=(window.__isEn&&__isEn())?en:ar;}
+  fetch('content/index.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():[];}).then(function(list){
+    if(!list||!list.length) return;
+    var ol=document.querySelector('#panel-articles ol.toc');
+    var frag=document.createDocumentFragment();
+    list.forEach(function(a){
+      if(!a.slug||!a.title) return;
+      var li=document.createElement('li');
+      li.innerHTML='<a href="article.html?slug='+encodeURIComponent(a.slug)+'"><span class="n"></span><span class="t"></span><span class="dots"></span><span class="p"></span></a>';
+      put(li.querySelector('.t'), esc(a.title), esc(a.title_en||a.title));
+      frag.appendChild(li);
+    });
+    var added=frag.childNodes.length;
+    ol.insertBefore(frag, ol.firstChild);
+    var items=ol.querySelectorAll(':scope > li'), page=5;
+    items.forEach(function(li,i){
+      li.classList.toggle('first', i===0);
+      put(li.querySelector('.n'), arNum(i+1), String(i+1));
+      var p=li.querySelector('.p');
+      if(i<added){ put(p, arNum(page), String(page)); page += 9; }
+      else { var v=parseInt(p.dataset.en||p.textContent,10)+(added*9); put(p, arNum(v), String(v)); }
+    });
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
